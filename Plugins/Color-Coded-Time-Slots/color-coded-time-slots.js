@@ -45,7 +45,7 @@ jq(document).ready(function() {
             //query the db looking for time slots with appointments and returning this array
             var obj = { 'action': "retrieveAttendees", 'dateSelected': bookingStart };
             //var postData = JSON.stringify(obj);
-            console.log(postData);
+            //console.log(postData);
             console.log(myAjax.ajaxurl);
             nonce = jq(this).attr("data-nonce");
             jq.ajax({
