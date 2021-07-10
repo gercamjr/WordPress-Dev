@@ -43,8 +43,8 @@ jq(document).ready(function() {
             console.log("day=" + day);
             bookingStart = bookingStart.concat(day);
             //query the db looking for time slots with appointments and returning this array
-            var obj = { action: "retrieveAttendees", dateSelected: bookingStart };
-            var postData = JSON.stringify(obj);
+            var obj = { 'action': "retrieveAttendees", 'dateSelected': bookingStart };
+            //var postData = JSON.stringify(obj);
             console.log(postData);
             console.log(myAjax.ajaxurl);
             nonce = jq(this).attr("data-nonce");
@@ -54,7 +54,7 @@ jq(document).ready(function() {
                 url: myAjax.ajaxurl,
                 data: {
                     action: "color-coded-time-slots",
-                    dateSelected: postData,
+                    dateSelected: obj,
                     nonce: nonce
                 },
                 success: function(response) {
