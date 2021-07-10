@@ -16,8 +16,8 @@ add_action( 'wp_ajax_nopriv_color-coded-time-slots', 'change_Colors' );
 /** @return never  */
 function change_Colors() {
     log("made it to the ajax request");
-	if ( isset($_REQUEST)) {
-		$bookingDay = $_REQUEST['dateSelected'];
+	if ( isset($_POST)) {
+		$bookingDay = $_POST['dateSelected'];
 		global $wpdb;
 		$sql = $wpdb->prepare("select apps.bookingStart, COUNT(*) as booked from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id where apps.bookingStart like %s'%' and apps.status = 'approved' GROUP BY books.appointmentId;", $bookingDay);
 		$result = $wpdb->get_row($sql);
