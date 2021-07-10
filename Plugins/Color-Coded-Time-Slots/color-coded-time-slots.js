@@ -54,7 +54,7 @@ jq(document).ready(function() {
                 url: myAjax.ajaxurl,
                 data: {
                     action: "color-coded-time-slots",
-                    dateSelected: bookingStart,
+                    dateSelected: postData,
                     nonce: nonce
                 },
                 success: function(response) {
