@@ -18,7 +18,7 @@ function change_Colors() {
     error_log("made it to the ajax request");
 	if ( isset($_POST)) {
         error_log("post is set");
-		$bookingDay = $_POST['dateSelected'] + "%";
+		$bookingDay = $_POST['dateSelected'].'%';
         error_log("post data looks like this: " . $bookingDay);
 		global $wpdb;
         $result = array();
