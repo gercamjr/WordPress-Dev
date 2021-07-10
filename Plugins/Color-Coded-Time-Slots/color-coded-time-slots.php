@@ -23,7 +23,7 @@ function change_Colors() {
 		global $wpdb;
         $result = array();
 		$sql = $wpdb->prepare("select apps.bookingStart, COUNT(*) as booked from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id where apps.bookingStart like %s and apps.status = 'approved' GROUP BY books.appointmentId;", $bookingDay);
-		$result = $wpdb->get_row($sql);
+		$result = $wpdb->get_results($sql);
         error_log("came back from sql query");
 		echo json_encode($result);
         error_log("echoed the json encoded query results...");
