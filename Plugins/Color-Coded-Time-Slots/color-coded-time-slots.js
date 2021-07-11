@@ -58,7 +58,7 @@ jq(document).ready(function() {
                             console.log("errorThrown: " + errorThrown)
                         }
                     });
-                } else if (prevDay !== day) { //user clicked on a different day so we need to clear the time Slots
+                } else if (prevDayPicked !== day) { //user clicked on a different day so we need to clear the time Slots
                     prevDayPicked = day;
                     bookingStart = bookingStart.concat(day);
                     console.log("picked a different day so we need to clear the time slots");
@@ -147,7 +147,7 @@ jq(document).ready(function() {
                             console.log("errorThrown: " + errorThrown)
                         }
                     });
-                } else if (prevday !== day) { //user clicked on a different day so we need to clear the time Slots
+                } else if (prevDayPicked !== day) { //user clicked on a different day so we need to clear the time Slots
                     prevDayPicked = day;
                     bookingStart = bookingStart.concat(day);
                     console.log("picked a different day so we need to clear the time slots");
