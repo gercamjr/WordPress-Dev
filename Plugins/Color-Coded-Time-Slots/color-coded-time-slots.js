@@ -2,14 +2,14 @@ var jq = jQuery.noConflict();
 jq(document).ready(function() {
     console.log("ready!");
     var prevService = "";
-    var serviceName = "";
+    var servName = "";
     // get the month and year
     jq("#amelia-app-booking0").click(function() {
         //get the service name from the h2 element after clicking
-        serviceName = jq(".am-service-title > h2").text().trim();
+        servName = jq(".am-service-title > h2").text().trim();
         if (!prevService) { //first time anything has been clicked
-            prevService = serviceName;
-            console.log("handled the service being clicked quite well. serviceName: " + serviceName);
+            prevService = servName;
+            console.log("handled the service being clicked for 1st time quite well. serviceName: " + servName);
             var datArr = jq(".c-title").text().split(" ");
             var month = datArr[16];
             var year = datArr[17].substring(0, 4);
@@ -18,7 +18,7 @@ jq(document).ready(function() {
 
             // turn month name into its corresponding MM format number
             var bookingStart = findBookingStart(month, year);
-            console.log("the bookingStart month and year" + bookingStart);
+            console.log("the bookingStart month and year: " + bookingStart);
             var day = "";
             var prevDayPicked = "";
             //find out which day was picked 
@@ -43,7 +43,7 @@ jq(document).ready(function() {
                         data: {
                             action: "color-coded-time-slots",
                             dateSelected: bookingStart,
-                            serviceName: serviceName,
+                            serviceName: servName,
                             nonce: nonce
                         },
                         success: function(response) {
@@ -58,7 +58,7 @@ jq(document).ready(function() {
                             console.log("errorThrown: " + errorThrown)
                         }
                     });
-                } else if (prevday !== day) { //user clicked on a different day so we need to clear the time Slots
+                } else if (prevDay !== day) { //user clicked on a different day so we need to clear the time Slots
                     prevDayPicked = day;
                     bookingStart = bookingStart.concat(day);
                     console.log("picked a different day so we need to clear the time slots");
@@ -72,7 +72,7 @@ jq(document).ready(function() {
                         data: {
                             action: "color-coded-time-slots",
                             dateSelected: bookingStart,
-                            serviceName: serviceName,
+                            serviceName: servName,
                             nonce: nonce
                         },
                         success: function(response) {
@@ -96,9 +96,10 @@ jq(document).ready(function() {
                 //clearing time slots
 
             });
-        } else if (prevService !== serviceName) {
-            prevService = serviceName;
-            console.log("handled the service being clicked quite well. serviceName: " + serviceName);
+        } else if (prevService !== servName) {
+            //clicked on a different service within the same booking
+            prevService = servName;
+            console.log("handled the service being clicked quite well. serviceName: " + servName);
             var datArr = jq(".c-title").text().split(" ");
             var month = datArr[16];
             var year = datArr[17].substring(0, 4);
@@ -121,10 +122,6 @@ jq(document).ready(function() {
                     prevDayPicked = day;
                     console.log("prevDayPicked: " + prevDayPicked);
                     bookingStart = bookingStart.concat(day);
-                    //query the db looking for time slots with appointments and returning this array
-                    //var obj = { 'action': "retrieveAttendees", 'dateSelected': bookingStart };
-                    //var postData = JSON.stringify(obj);
-                    //console.log(postData);
                     console.log(myAjax.ajaxurl);
                     //figure out how to do the nonce thing for security purposes
                     nonce = jq(this).attr("data-nonce");
@@ -135,7 +132,7 @@ jq(document).ready(function() {
                         data: {
                             action: "color-coded-time-slots",
                             dateSelected: bookingStart,
-                            serviceName: serviceName,
+                            serviceName: servName,
                             nonce: nonce
                         },
                         success: function(response) {
@@ -154,9 +151,35 @@ jq(document).ready(function() {
                     prevDayPicked = day;
                     bookingStart = bookingStart.concat(day);
                     console.log("picked a different day so we need to clear the time slots");
-                    clearTimeSlots(day);
+                    clearTimeSlots();
+                    nonce = jq(this).attr("data-nonce");
+                    jq.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        url: myAjax.ajaxurl,
+                        data: {
+                            action: "color-coded-time-slots",
+                            dateSelected: bookingStart,
+                            serviceName: servName,
+                            nonce: nonce
+                        },
+                        success: function(response) {
+                            console.log("we are in the callback");
+                            //console.log(JSON.stringify(response));
+                            //here comes the fun! find the time slots with appointments in the DOM and change their background oh yeah!
+                            changeBgColors(response);
+                        },
+                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                            console.log("we failed again: " + JSON.stringify(XMLHttpRequest));
+                            console.log("text status: " + textStatus);
+                            console.log("errorThrown: " + errorThrown)
+                        }
+                    });
 
+                } else if (prevDayPicked === day) {
+                    //clicked on the same day, don't need to do anything
                 }
+
             });
 
         }
@@ -181,8 +204,8 @@ jq(document).ready(function() {
         }
     }
 
-    function clearTimeSlots(day) {
-
+    function clearTimeSlots() {
+        jq("label.el-radio-button.el-radio-button--medium").css("background", "transparent");
     }
 
     function findBookingStart(month, year) {

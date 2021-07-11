@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: Color Coded Time Slots
- * Plugin URI: http://geracomdev.com
+ * Plugin URI: https://github.com/gercamjr/WordPress-Dev
  * Description: This plugin color codes Amelia Booking time slots depending on number of attendees
  * Version: 1.0.0
  * Author: Gerardo Camorlinga Jr
- * Author URI: http://geracomdev.com
+ * Author URI: http://github.com/gercamjr
  * License: GPL2
  */
 // Fires after WordPress has finished loading, but before any headers are sent.
@@ -15,19 +15,25 @@ add_action( 'wp_ajax_nopriv_color-coded-time-slots', 'change_Colors' );
 
 /** @return never  */
 function change_Colors() {
+    global $wpdb;
     error_log("made it to the ajax request");
 	if ( isset($_POST)) {
         error_log("post is set");
 		$bookingDay = $_POST['dateSelected'].'%';
-        $serviceName = $_POST['serviceName'].'%';
-        error_log("post data looks like this: " . $bookingDay);
-		global $wpdb;
+        $servName = $_POST['serviceName'];
+        error_log("bookingDay looks like this: " . $bookingDay);
+        error_log("serviceName looks like: " . $servName);
         $result = array();
-        $serviceSql = $wpdb->prepare("SELECT serv.id as servId from wp_amelia_services as serv where serv.name like %s;", $serviceName);
-        $servResult = $wpdb->get_results($serviceSql);
-        $serviceId = $servResult->servId;
+        // hard coding the service names and id's
+        $services = array("No Minimum IG Live" => 2,
+                          "10k+ IG Live" => 3,
+                          "IG Live with @yourbestinsta" => 4,
+                          "IG Live with @onaartist" => 5);
+        $serviceId = $services[$servName];
+        error_log("the serviceId: " . $serviceId);
 		$sql = $wpdb->prepare("select apps.bookingStart, COUNT(*) as booked from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id where apps.bookingStart like %s and apps.status = 'approved' and apps.serviceId = %d GROUP BY books.appointmentId;", $bookingDay, $serviceId);
 		$result = $wpdb->get_results($sql);
+
         error_log("came back from sql query");
 		echo json_encode($result);
         error_log("echoed the json encoded query results...");
