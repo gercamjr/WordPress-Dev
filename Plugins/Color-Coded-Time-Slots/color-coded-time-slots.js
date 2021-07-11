@@ -32,43 +32,51 @@ jq(document).ready(function() {
             // should end up gettin something like "2021-04-""
             return formattedDate;
         })();
-        console.log(bookingStart)
+        console.log("the bookingStart month and year" + bookingStart);
         var day = "";
+        var prevDayPicked = "";
         //find out which day was picked 
         jq(".c-day-content").click(function() {
             bookingStart = bookingStart.substring(0, 8);
             console.log("handled the day being picked quite nicely...");
-            day = jq(this).text();
-            day = day.replace(/[^0-9]/g, '');
+            //logic for the first time a day is picked...
+            day = jq(this).text().replace(/[^0-9]/g, '');
             console.log("day=" + day);
-            bookingStart = bookingStart.concat(day);
-            //query the db looking for time slots with appointments and returning this array
-            //var obj = { 'action': "retrieveAttendees", 'dateSelected': bookingStart };
-            //var postData = JSON.stringify(obj);
-            //console.log(postData);
-            console.log(myAjax.ajaxurl);
-            nonce = jq(this).attr("data-nonce");
-            jq.ajax({
-                type: "POST",
-                dataType: "json",
-                url: myAjax.ajaxurl,
-                data: {
-                    action: "color-coded-time-slots",
-                    dateSelected: bookingStart,
-                    nonce: nonce
-                },
-                success: function(response) {
-                    console.log("we are in the callback");
-                    //console.log(JSON.stringify(response));
-                    //here comes the fun! find the time slots with appointments in the DOM and change their background oh yeah!
-                    changeBgColors(response);
-                },
-                error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    console.log("we failed again: " + JSON.stringify(XMLHttpRequest));
-                    console.log("text status: " + textStatus);
-                    console.log("errorThrown: " + errorThrown)
-                }
-            });
+            if (!prevDayPicked) {
+                prevDayPicked = day;
+                console.log("prevDayPicked: " + prevDayPicked);
+                bookingStart = bookingStart.concat(day);
+                //query the db looking for time slots with appointments and returning this array
+                //var obj = { 'action': "retrieveAttendees", 'dateSelected': bookingStart };
+                //var postData = JSON.stringify(obj);
+                //console.log(postData);
+                console.log(myAjax.ajaxurl);
+                nonce = jq(this).attr("data-nonce");
+                jq.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: myAjax.ajaxurl,
+                    data: {
+                        action: "color-coded-time-slots",
+                        dateSelected: bookingStart,
+                        nonce: nonce
+                    },
+                    success: function(response) {
+                        console.log("we are in the callback");
+                        //console.log(JSON.stringify(response));
+                        //here comes the fun! find the time slots with appointments in the DOM and change their background oh yeah!
+                        changeBgColors(response);
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        console.log("we failed again: " + JSON.stringify(XMLHttpRequest));
+                        console.log("text status: " + textStatus);
+                        console.log("errorThrown: " + errorThrown)
+                    }
+                });
+            } else if (prevday === day) {
+
+            }
+
             console.log("exited the click handler");
             //bookingStart = bookingStart.substring(0, 8);
             // lets change the colors now
