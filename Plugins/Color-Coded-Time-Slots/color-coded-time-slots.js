@@ -74,15 +74,21 @@ jq(document).ready(function() {
             // lets change the colors now
             function changeBgColors(response) {
                 var len = response.length;
+                console.log("number of rows returned: " + len);
                 var sno = 0;
                 //value key for the colors
                 var colors = { "1": "#48E2AB", "2": "#F98484", "3": "#7470FF" };
                 for (var i = 0; i < len; i++) {
-                    var time_slot = response[i].bookingStart.substring(12, 17);
+                    var time_slot = response[i].bookingStart.substring(11, 16);
                     var attendees = response[i].booked;
                     //find the time slot and change the bg color, we is almost there
-                    var elementSearch = jq(':input[value=]').closest("label");
-                    elementSearch.css("background-color", colors[attendees]);
+                    //var selector = ':input[value="' + time_slot + '"]';
+                    //console.log("the selector to find: " + selector);
+                    //var cssEdit = 'background-color, ' + colors[attendees];
+                    //console.log("the cssEdit text: " + cssEdit);
+                    console.log("the color being used: " + colors[attendees]);
+                    jq(':input[value="' + time_slot + '"]').closest("label").css('background-color', '' + colors[attendees]);
+                    console.log("supposedly changed the background color");
 
                 }
             }
