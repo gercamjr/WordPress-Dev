@@ -19,11 +19,14 @@ function change_Colors() {
 	if ( isset($_POST)) {
         error_log("post is set");
 		$bookingDay = $_POST['dateSelected'].'%';
+        $serviceName = $_POST['serviceName'].'%';
         error_log("post data looks like this: " . $bookingDay);
 		global $wpdb;
         $result = array();
-        
-		$sql = $wpdb->prepare("select apps.bookingStart, COUNT(*) as booked from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id where apps.bookingStart like %s and apps.status = 'approved' GROUP BY books.appointmentId;", $bookingDay);
+        $serviceSql = $wpdb->prepare("SELECT serv.id as servId from wp_amelia_services as serv where serv.name like %s;", $serviceName);
+        $servResult = $wpdb->get_results($serviceSql);
+        $serviceId = $servResult->servId;
+		$sql = $wpdb->prepare("select apps.bookingStart, COUNT(*) as booked from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id where apps.bookingStart like %s and apps.status = 'approved' and apps.serviceId = %d GROUP BY books.appointmentId;", $bookingDay, $serviceId);
 		$result = $wpdb->get_results($sql);
         error_log("came back from sql query");
 		echo json_encode($result);
