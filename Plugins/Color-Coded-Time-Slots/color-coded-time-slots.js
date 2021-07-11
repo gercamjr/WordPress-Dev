@@ -59,7 +59,9 @@ jq(document).ready(function() {
                 },
                 success: function(response) {
                     console.log("we are in the callback");
-                    console.log(JSON.stringify(response));
+                    //console.log(JSON.stringify(response));
+                    //here comes the fun! find the time slots with appointments in the DOM and change their background oh yeah!
+                    changeBgColors(response);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     console.log("we failed again: " + JSON.stringify(XMLHttpRequest));
@@ -69,6 +71,21 @@ jq(document).ready(function() {
             });
             console.log("exited the click handler");
             //bookingStart = bookingStart.substring(0, 8);
+            // lets change the colors now
+            function changeBgColors(response) {
+                var len = response.length;
+                var sno = 0;
+                //value key for the colors
+                var colors = { "1": "#48E2AB", "2": "#F98484", "3": "#7470FF" };
+                for (var i = 0; i < len; i++) {
+                    var time_slot = response[i].bookingStart.substring(12, 17);
+                    var attendees = response[i].booked;
+                    //find the time slot and change the bg color, we is almost there
+                    var elementSearch = jq(':input[value=]').closest("label");
+                    elementSearch.css("background-color", colors[attendees]);
+
+                }
+            }
         });
     });
 });
