@@ -55,13 +55,13 @@ function display_booked_attendees() {
 function script_enqueuer() {
    
    // Register the JS file with a unique handle, file location, and an array of dependencies
-   wp_register_script( "color-coded-time-slots", plugin_dir_url(__FILE__).'color-coded-time-slots.js', array('jquery') );
+   wp_register_script( "display-booked-attendees", plugin_dir_url(__FILE__).'display-booked-attendees.js', array('jquery') );
    
    // localize the script to your domain name, so that you can reference the url to admin-ajax.php file easily
-   wp_localize_script( 'color-coded-time-slots', 'myAjax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' )));        
+   wp_localize_script( 'display-booked-attendees', 'myAjax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' )));        
    
    // enqueue jQuery library and the script you registered above
    wp_enqueue_script( 'jquery' );
-   wp_enqueue_script( 'color-coded-time-slots' );
+   wp_enqueue_script( 'display-booked-attendees' );
 }
 ?>

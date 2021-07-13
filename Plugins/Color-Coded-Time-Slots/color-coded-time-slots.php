@@ -14,7 +14,7 @@ add_action( 'wp_ajax_color-coded-time-slots', 'change_Colors' );
 add_action( 'wp_ajax_nopriv_color-coded-time-slots', 'change_Colors' );
 
 /** @return never  */
-function change_Colors() {
+function display_booked_attendees() {
     global $wpdb;
     error_log("made it to the ajax request");
 	if ( isset($_POST)) {
