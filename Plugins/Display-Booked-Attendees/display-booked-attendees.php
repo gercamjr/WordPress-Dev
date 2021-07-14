@@ -10,6 +10,34 @@
  * License: GPL2
  */
 // Fires after WordPress has finished loading, but before any headers are sent.
+//Add admin page to the menu
+add_action( 'admin_menu', 'add_admin_page');
+function add_admin_page() {
+  // add top level menu page
+  add_menu_page(
+    'Custom Admin - Amelia Appointments', //Page Title
+    'Custom Admin - Amelia Appointments', //Menu Title
+    'manage_options', //Capability
+    'custom_admin_amelia_appointments', //Page slug
+    '/Display-Booke-Attendees/adminpage.php', //Callback to print html
+    'dashicons-groups',
+    6
+  );
+}
+function my_enqueue($hook) {
+    //only for this special admin page to the
+    if ('Display-Booked-Attendees/adminpage.php' != $hook)
+        return;
+
+    wp_register_style('adminpage', plugins_url('Display-Booked-Attendees/pluginpage.css'));
+    wp_enqueue_style('adminpage');
+
+    wp_enqueue_script('pluginscript', plugins_url('pluginpage.js', __FILE__), array('jquery'));
+    
+}
+
+
+
 add_action('init', 'script_enqueuer');
 add_action('wp_ajax_display-booked-attendees', 'display_booked_attendees');
 add_action('wp_ajax_nopriv_display-booked-attendees', 'display_booked_attendees');
