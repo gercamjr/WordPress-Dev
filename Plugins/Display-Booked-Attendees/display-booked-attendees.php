@@ -19,7 +19,7 @@ function add_admin_page() {
     'Custom Admin - Amelia Appointments', //Menu Title
     'manage_options', //Capability
     'custom_admin_amelia_appointments', //Page slug
-    '/Display-Booke-Attendees/adminpage.php', //Callback to print html
+    '/Display-Booked-Attendees/adminpage.php', //Callback to print html
     'dashicons-groups',
     6
   );
@@ -33,7 +33,7 @@ function my_enqueue($hook) {
     wp_enqueue_style('adminpage');
 
     wp_enqueue_script('pluginscript', plugins_url('pluginpage.js', __FILE__), array('jquery'));
-    
+
 }
 
 
@@ -95,8 +95,7 @@ function display_booked_attendees()
                     $dt->setTimezone(new DateTimeZone('UTC'));
                     $appointmentDateTime = $dt->format('Y-m-d H:i:s');
                     //query the db
-                    $sql = $wpdb->prepare("select books.customFields as SocialTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart = %s and serv.name = %s and apps.status = 'approved' order by bookingStart;", $appointmentDateTime, $services[$j]);
-                    $result = $wpdb->get_results($sql);
+                     
                     //populate with the social media tags if results are not empty
                     if (count($result) > 0) {
                         foreach ($result as $social) {
