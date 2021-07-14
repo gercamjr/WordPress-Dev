@@ -82,7 +82,7 @@ function display_booked_attendees()
                 }
             }
         }
-        error_log("came back from sql query");
+        error_log("empty strings dang it");
         echo json_encode($socialResults);
         error_log("echoed the json encoded query results...");
     }
