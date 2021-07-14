@@ -11,30 +11,71 @@
  */
 // Fires after WordPress has finished loading, but before any headers are sent.
 //Add admin page to the menu
-add_action( 'admin_menu', 'add_admin_page');
-function add_admin_page() {
-  // add top level menu page
-  add_menu_page(
-    'Custom Admin - Amelia Appointments', //Page Title
-    'Custom Admin - Amelia Appointments', //Menu Title
-    'manage_options', //Capability
-    'custom_admin_amelia_appointments', //Page slug
-    '/Display-Booked-Attendees/adminpage.php', //Callback to print html
-    'dashicons-groups',
-    6
-  );
+add_action('admin_menu', 'add_admin_page');
+function add_admin_page()
+{
+    // add top level menu page
+    add_menu_page(
+        'Custom Admin - Amelia Appointments', //Page Title
+        'Custom Admin - Amelia Appointments', //Menu Title
+        'manage_options', //Capability
+        'custom_admin_amelia_appointments', //Page slug
+        'showAdminPage', //Callback to print html
+        'dashicons-groups',
+        6
+    );
 }
-function my_enqueue($hook) {
+
+function showAdminPage()
+{
+    global $wpdb;
+
+    echo "<h1>View Amelia Appointments</h1>";
+
+    $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTagas from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '2021-07-14' and '2021-08-12' order by bookingStart;");
+    //$arr = $wpdb->get_results($sql);
+
+    echo '<div id="dt_example"><div id="container"><form><div id="demo">';
+    echo '<table cellpadding="0" cellspacing="0" border="0" class="display" id="example"><thead><tr>';
+
+    foreach ($arr[0] as $k => $v) {
+        echo "<td>" . $k . "</td>";
+    }
+
+    echo '</tr></thead><tbody>';
+
+    foreach ($arr as $i => $j) {
+        echo "<tr>";
+        foreach ($arr[$i] as $k => $v) {
+            echo "<td>" . $v . "</td>";
+        }
+        echo "</tr>";
+    }
+
+
+    echo '</tbody></table>';
+    echo '</div></form></div></div>';
+}
+?>
+
+<script type="text/javascript">
+    jQuery(document).ready(function($) {
+        $('#example').dataTable();
+    });
+</script>
+<?php
+function my_enqueue($hook)
+{
     //only for this special admin page to the
-    if ('Display-Booked-Attendees/adminpage.php' != $hook)
+    if ('showAdminPage' != $hook)
         return;
 
-    wp_register_style('adminpage', plugins_url('Display-Booked-Attendees/pluginpage.css'));
+    wp_register_style('adminpage', plugins_url('pluginpage.css'));
     wp_enqueue_style('adminpage');
 
     wp_enqueue_script('pluginscript', plugins_url('pluginpage.js', __FILE__), array('jquery'));
-
 }
+
 
 
 
@@ -82,12 +123,12 @@ function display_booked_attendees()
         $socialResults = array();
         $dateCount = count($appDates);
         $timesCount = count($appTimes);
-        
+
         //should probably check this on the jquery side but just in case we don't have any dates or appointments set then don't need to do anything
         if ($dateCount > 0 && $timesCount > 0) {
             error_log("total number of dates to pull: " . $dateCount);
             error_log("total number of appointments to pull: " . $timesCount);
-            for ($i = 0; $i < $dateCount; $i++) {      
+            for ($i = 0; $i < $dateCount; $i++) {
                 for ($j = 0; $j < $timesCount; $j++) {
                     // first of all convert to UTC time since that is what is stored in the DB
                     $appointmentDateTime = $appDates[$i] . " " . $appTimes[$j];
@@ -95,7 +136,7 @@ function display_booked_attendees()
                     $dt->setTimezone(new DateTimeZone('UTC'));
                     $appointmentDateTime = $dt->format('Y-m-d H:i:s');
                     //query the db
-                     
+
                     //populate with the social media tags if results are not empty
                     if (count($result) > 0) {
                         foreach ($result as $social) {
@@ -130,3 +171,4 @@ function script_enqueuer()
     wp_enqueue_script('jquery');
     wp_enqueue_script('display-booked-attendees');
 }
+?>
