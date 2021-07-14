@@ -117,7 +117,7 @@ jq(document).ready(function() {
                 },
                 success: function(response) {
                     console.log("ajax request was a success!");
-                    displayAttendees(response);
+                    displayAttendees(response, times);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     console.log("we failed again: " + JSON.stringify(XMLHttpRequest));
@@ -127,14 +127,55 @@ jq(document).ready(function() {
 
             });
 
-            function displayAttendees(data) {
+            function displayAttendees(data, allTimes) {
                 //should have received an array of arrays that looks like this:
                 //   data[date][time] = "{"1":{"label":"Instagram:","value":"starig","type":"text"},"2":{"label":"Telegram:","value":"startele","type":"text"}}"
                 //
                 //
                 //
-                console.log("made it to displayAttendees function");
-
+                console.log("made it to displayAttendees function!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                console.log(data);
+                // adding in our custom html stuff to load in the modelsssssssssss
+                jq('div[id^="el-collapse-content-"] > div > div > div > div').append("<div class='el-row'><ul class='am-data'>Models: </ul></div>");
+                var $ulis = jQuery("div[id^='el-collapse-content-'] > div > div > div > div >div > ul"); //get all the new ul's we created so we can append to them one by one
+                $ulis.attr('id', function(index) {
+                    return 'ul' + index;
+                });
+                console.log("did we get allTimes? " + allTimes); // give all the ulis a unique id so we can iterate through them oh yeah
+                var prevTime = "";
+                var socialIG = "";
+                var socialTelegram = "";
+                var parentUL = 0;
+                var nextUL = 0;
+                jq.each(data, function(index, obj) {
+                    jq.each(obj, function(key, value) {
+                        if (prevTime !== key) {
+                            parentUL = nextUL;
+                            console.log(key);
+                            console.log(value[0]);
+                            prevTime = key;
+                            let socialMediaTags = value[0];
+                            console.log(socialMediaTags);
+                            socialMediaTags = socialMediaTags.replace(/\"/g, ''); // get this; "1:label:Instagram:,value:anothertest,type:text,2:label:Telegram:,value:anothertest,type:text"
+                            console.log(socialMediaTags);
+                            socialMediaTags = socialMediaTags.split(":"); // get this an array, now need to grab the instagram string which is [4] and the telegram which is [9]
+                            socialIG = socialMediaTags[4].substr(0, socialMediaTags[4].indexOf(',')); //will get just the tag by itself
+                            socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
+                            jq('#ul' + parentUL).append('<br /><li class="am-value">instagram.com/' + socialIG + '  @' + socialTelegram + '</li>'); // this should be ittttttttttttttttt lets littt it up
+                            nextUL++;
+                        } else {
+                            prevTime = key;
+                            let socialMediaTags = value[0];
+                            console.log(socialMediaTags);
+                            socialMediaTags = socialMediaTags.replace(/\"/g, ''); // get this; "1:label:Instagram:,value:anothertest,type:text,2:label:Telegram:,value:anothertest,type:text"
+                            console.log(socialMediaTags);
+                            socialMediaTags = socialMediaTags.split(":"); // get this an array, now need to grab the instagram string which is [4] and the telegram which is [9]
+                            socialIG = socialMediaTags[4].substr(0, socialMediaTags[4].indexOf(',')); //will get just the tag by itself
+                            socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
+                            jq('#ul' + parentUL).append('<br /><li class="am-value">instagram.com/' + socialIG + '  @' + socialTelegram + '</li>');
+                        }
+                    });
+                });
             }
         }
 

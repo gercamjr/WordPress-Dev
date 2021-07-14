@@ -67,14 +67,14 @@ function display_booked_attendees()
                     $dt->setTimezone(new DateTimeZone('UTC'));
                     $appointmentDateTime = $dt->format('Y-m-d H:i:s');
                     //query the db
-                    $sql = $wpdb->prepare("select books.customFields as ServName from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart = %s and serv.name = %s and apps.status = 'approved' order by bookingStart;", $appointmentDateTime, $services[$j]);
+                    $sql = $wpdb->prepare("select books.customFields as SocialTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart = %s and serv.name = %s and apps.status = 'approved' order by bookingStart;", $appointmentDateTime, $services[$j]);
                     $result = $wpdb->get_results($sql);
                     //populate with the social media tags if results are not empty
                     if (count($result) > 0) {
                         foreach ($result as $social) {
                             $socialResults[] = array(
                                 $appTimes[$j] => array(
-                                    $social
+                                    $social->SocialTags
                                 )
                             );
                         }
@@ -82,7 +82,7 @@ function display_booked_attendees()
                 }
             }
         }
-        error_log("empty strings dang it");
+        //error_log("empty strings dang it");
         echo json_encode($socialResults);
         error_log("echoed the json encoded query results...");
     }
