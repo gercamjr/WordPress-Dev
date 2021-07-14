@@ -3,18 +3,18 @@
  * Plugin Name: Color Coded Time Slots
  * Plugin URI: https://github.com/gercamjr/WordPress-Dev
  * Description: This plugin color codes Amelia Booking time slots depending on number of attendees
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Gerardo Camorlinga Jr
  * Author URI: http://github.com/gercamjr
  * License: GPL2
  */
 // Fires after WordPress has finished loading, but before any headers are sent.
-add_action( 'init', 'script_enqueuer' );
+add_action( 'init', 'script_enqueuer_colors' );
 add_action( 'wp_ajax_color-coded-time-slots', 'change_Colors' );
 add_action( 'wp_ajax_nopriv_color-coded-time-slots', 'change_Colors' );
 
 /** @return never  */
-function display_booked_attendees() {
+function change_Colors() {
     global $wpdb;
     error_log("made it to the ajax request");
 	if ( isset($_POST)) {
@@ -33,8 +33,8 @@ function display_booked_attendees() {
         error_log("the serviceId: " . $serviceId);
 		$sql = $wpdb->prepare("select apps.bookingStart, COUNT(*) as booked from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id where apps.bookingStart like %s and apps.status = 'approved' and apps.serviceId = %d GROUP BY books.appointmentId;", $bookingDay, $serviceId);
 		$result = $wpdb->get_results($sql);
-
-        error_log("came back from sql query");
+        
+        //error_log("came back from sql query: " . print_r($result));
 		echo json_encode($result);
         error_log("echoed the json encoded query results...");
 	}
@@ -42,7 +42,7 @@ function display_booked_attendees() {
 }
 
 /** @return void  */
-function script_enqueuer() {
+function script_enqueuer_colors() {
    
    // Register the JS file with a unique handle, file location, and an array of dependencies
    wp_register_script( "color-coded-time-slots", plugin_dir_url(__FILE__).'color-coded-time-slots.js', array('jquery') );

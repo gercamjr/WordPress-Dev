@@ -190,8 +190,11 @@ jq(document).ready(function() {
         // lets change the colors now
         function changeBgColors(response) {
             //value key for the colors
+            console.log(response);
             var colors = { "1": "#48E2AB", "2": "#F98484", "3": "#7470FF" };
-            for (var i = 0; i < len; i++) {
+            for (var i = 0; i < response.length; i++) {
+                //$dt = new DateTime($appointmentDateTime, new DateTimeZone($timeZone));
+                console.log("the date we are going through: " + response[i].bookingStart);
                 var time_slot = response[i].bookingStart.substring(11, 16);
                 var attendees = response[i].booked;
                 //find the time slot and change the bg color, we is almost there
