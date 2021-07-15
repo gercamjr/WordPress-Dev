@@ -4,14 +4,14 @@
  * Plugin Name: Display Booked Attendees - Amelia
  * Plugin URI: https://github.com/gercamjr/WordPress-Dev
  * Description: This plugin will display customers who have booked an appointment at a given time.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Gerardo Camorlinga Jr
  * Author URI: http://github.com/gercamjr
  * License: GPL2
  */
 // Fires after WordPress has finished loading, but before any headers are sent.
 //Add admin page to the menu
-add_action('admin_menu', 'add_admin_page');
+
 function add_admin_page()
 {
     // add top level menu page
@@ -25,59 +25,79 @@ function add_admin_page()
         6
     );
 }
+add_action('admin_menu', 'add_admin_page');
 
 function showAdminPage()
 {
     global $wpdb;
-
-    echo "<h1>View Amelia Appointments</h1>";
+    ?>
+    <script type="text/javascript">
+    var jq = jQuery.noConflict();
+    jq(document).ready(function($) {
+        $('#customAdminView').dataTable();
+        console.log("made it to the document handler");
+    });
+    </script>
+    <?php
+    echo "<h1>View Amelia Appointments (WORK IN PROGRESS)</h1>";
 
     $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTagas from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '2021-07-14' and '2021-08-12' order by bookingStart;");
     //$arr = $wpdb->get_results($sql);
 
     echo '<div id="dt_example"><div id="container"><form><div id="demo">';
-    echo '<table cellpadding="0" cellspacing="0" border="0" class="display" id="example"><thead><tr>';
+    echo '<table cellpadding="0" cellspacing="0" border="0" class="display" id="customAdminView"><thead><tr>';
 
     foreach ($arr[0] as $k => $v) {
         echo "<td>" . $k . "</td>";
     }
 
     echo '</tr></thead><tbody>';
-
+    
     foreach ($arr as $i => $j) {
         echo "<tr>";
         foreach ($arr[$i] as $k => $v) {
+            if ($k == "AppointmentTime") {
+                $v = formatNYCTime($v);
+            }
+            else if ($k == "SocialMediaTags") {
+                $v = extractSocialTags($v);
+            }
             echo "<td>" . $v . "</td>";
         }
         echo "</tr>";
+    }
+
+    function formatNYCTime($theTime) {
+        $dtN = new DateTime($theTime, new DateTimeZone("UTC"));
+        $dtN->setTimezone(new DateTimeZone('America/New_York'));
+        return $dtN->format("m-d-Y h:i a");
+    }
+
+    function extractSocialTags($theTag) {
+        $theTag = substr($theTag, 37); //eliminate the garbage from first 36 characters
+
     }
 
 
     echo '</tbody></table>';
     echo '</div></form></div></div>';
 }
-?>
 
-<script type="text/javascript">
-    jQuery(document).ready(function($) {
-        $('#example').dataTable();
-    });
-</script>
-<?php
-function my_enqueue($hook)
-{
-    //only for this special admin page to the
-    if ('showAdminPage' != $hook)
-        return;
-
-    wp_register_style('adminpage', plugins_url('pluginpage.css'));
-    wp_enqueue_style('adminpage');
-
-    wp_enqueue_script('pluginscript', plugins_url('pluginpage.js', __FILE__), array('jquery'));
+function register_my_plugin_scripts() {
+    wp_register_style( 'showAdminPage', plugins_url('Display-Booked-Attendees/pluginpage.css'));
+    wp_register_script( 'showAdminPage', plugins_url('Display-Booked-Attendees/pluginpage.js'));
 }
+add_action( 'admin_enqueue_scripts', 'register_my_plugin_scripts');
 
-
-
+function load_my_plugin_scripts($hook) {
+    if ( $hook != 'toplevel_page_custom_admin_amelia_appointments') {
+        return;
+    }
+    wp_enqueue_style('showAdminPage');
+    wp_enqueue_script('showAdminPage', array ('jquery'));
+    wp_enqueue_script('jquery');
+}
+add_action( 'admin_enqueue_scripts', 'load_my_plugin_scripts' );
 
 add_action('init', 'script_enqueuer');
 add_action('wp_ajax_display-booked-attendees', 'display_booked_attendees');
@@ -136,13 +156,13 @@ function display_booked_attendees()
                     $dt->setTimezone(new DateTimeZone('UTC'));
                     $appointmentDateTime = $dt->format('Y-m-d H:i:s');
                     //query the db
-
+                    $result = $wpdb->get_results("select books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart = '" . $appointmentDateTime ."' and books.status = 'approved' order by bookingStart;");   
                     //populate with the social media tags if results are not empty
                     if (count($result) > 0) {
                         foreach ($result as $social) {
                             $socialResults[] = array(
                                 $appTimes[$j] => array(
-                                    $social->SocialTags
+                                    $social->SocialMediaTags
                                 )
                             );
                         }
