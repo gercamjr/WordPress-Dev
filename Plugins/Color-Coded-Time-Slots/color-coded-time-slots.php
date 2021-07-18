@@ -66,6 +66,7 @@ function script_enqueuer_colors($hook)
         wp_register_script("color-coded-time-slots", plugin_dir_url(__FILE__) . 'color-coded-time-slots.js', array('jquery'));
         wp_register_script("color-coded-moment", plugin_dir_url(__FILE__) . 'moment.js');
         wp_register_script("color-coded-moment-timezone", plugin_dir_url(__FILE__) . 'moment-timezone-with-data.js');
+       // wp_register_script("mutationsss", plugin_dir_url(__FILE__) . 'mutation-summary.js');
 
         // localize the script to your domain name, so that you can reference the url to admin-ajax.php file easily
         wp_localize_script('color-coded-time-slots', 'myAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
@@ -75,4 +76,5 @@ function script_enqueuer_colors($hook)
         wp_enqueue_script('color-coded-time-slots');
         wp_enqueue_script("color-coded-moment");
         wp_enqueue_script("color-coded-moment-timezone");
+        //wp_enqueue_script('mutationsss')
 }
