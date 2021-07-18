@@ -117,7 +117,7 @@ jq(document).ready(function() {
                 },
                 success: function(response) {
                     console.log("ajax request was a success!");
-                    displayAttendees(response, times);
+                    displayAttendees(response, times, services);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     console.log("we failed again: " + JSON.stringify(XMLHttpRequest));
@@ -127,7 +127,7 @@ jq(document).ready(function() {
 
             });
 
-            function displayAttendees(data, allTimes) {
+            function displayAttendees(data, allTimes, servs) {
                 //should have received an array of arrays that looks like this:
                 //   data[date][time] = "{"1":{"label":"Instagram:","value":"starig","type":"text"},"2":{"label":"Telegram:","value":"startele","type":"text"}}"
                 //
@@ -147,34 +147,68 @@ jq(document).ready(function() {
                 var socialTelegram = "";
                 var parentUL = 0;
                 var nextUL = 0;
+                var iteration_lim = servs.length;
+                var iteration = 0;
+                var prevServ, newServ = "";
+
                 jq.each(data, function(index, obj) {
                     jq.each(obj, function(key, value) {
                         if (prevTime !== key) {
+
+                            newServ = servs[iteration];
+                            prevServ = newServ;
+
                             parentUL = nextUL;
                             console.log(key);
-                            console.log(value[0]);
+                            console.log("in the first if statement: " + value[0]);
                             prevTime = key;
                             let socialMediaTags = value[0];
-                            //console.log(socialMediaTags);
+                            // console.log(socialMediaTags);
                             socialMediaTags = socialMediaTags.replace(/\"/g, ''); // get this; "1:label:Instagram:,value:anothertest,type:text,2:label:Telegram:,value:anothertest,type:text"
-                            //console.log(socialMediaTags);
+                            // console.log(socialMediaTags);
                             socialMediaTags = socialMediaTags.split(":"); // get this an array, now need to grab the instagram string which is [4] and the telegram which is [9]
                             socialIG = socialMediaTags[4].substr(0, socialMediaTags[4].indexOf(',')); //will get just the tag by itself
+                            socialIG = socialIG.replace(/\\/g, ''); //remove that backslash
                             socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
-                            jq('#ul' + parentUL).append('<br /><li class="am-value"> @' + socialTelegram + ' instagram.com/' + socialIG + '</li>');
+                            jq('#ul' + parentUL).append('<br /><li class="am-value"> ' + socialTelegram + '       ' + socialIG + '</li>');
                             nextUL++; // this should be ittttttttttttttttt lets littt it up nextUL++;
                         } else {
                             prevTime = key;
-                            let socialMediaTags = value[0];
-                            console.log(socialMediaTags);
-                            socialMediaTags = socialMediaTags.replace(/\"/g, ''); // get this; "1:label:Instagram:,value:anothertest,type:text,2:label:Telegram:,value:anothertest,type:text"
-                            console.log(socialMediaTags);
-                            socialMediaTags = socialMediaTags.split(":"); // get this an array, now need to grab the instagram string which is [4] and the telegram which is [9]
-                            socialIG = socialMediaTags[4].substr(0, socialMediaTags[4].indexOf(',')); //will get just the tag by itself
-                            socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
-                            jq('#ul' + parentUL).append('<br /><li class="am-value"> @' + socialTelegram + ' instagram.com/' + socialIG + '</li>');
+                            newServ = servs[iteration];
+                            console.log("we found a duplicate time, could be same service or a different one: " + newServ);
+                            if (prevServ == newServ) {
+                                console.log("ok so it is the same service, should be a different model signed up");
+                                let socialMediaTags = value[0];
+                                //console.log(socialMediaTags);
+                                socialMediaTags = socialMediaTags.replace(/\"/g, ''); // get this; "1:label:Instagram:,value:anothertest,type:text,2:label:Telegram:,value:anothertest,type:text"
+                                //console.log(socialMediaTags);
+                                socialMediaTags = socialMediaTags.split(":"); // get this an array, now need to grab the instagram string which is [4] and the telegram which is [9]
+                                socialIG = socialMediaTags[4].substr(0, socialMediaTags[4].indexOf(',')); //will get just the tag by itself
+                                socialIG = socialIG.replace(/\\/g, ''); //remove that backslash
+                                socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
+                                jq('#ul' + parentUL).append('<br /><li class="am-value"> ' + socialTelegram + '       ' + socialIG + '</li>');
+                            } else {
+                                console.log("ok so it is a different service, meaning it is a new appointment: ");
+                                prevServ = newServ;
+                                console.log(newServ);
+                                //
+                                parentUL = nextUL;
+                                nextUL++;
+                                let socialMediaTags = value[0];
+                                //console.log(socialMediaTags);
+                                socialMediaTags = socialMediaTags.replace(/\"/g, ''); // get this; "1:label:Instagram:,value:anothertest,type:text,2:label:Telegram:,value:anothertest,type:text"
+                                //console.log(socialMediaTags);
+                                socialMediaTags = socialMediaTags.split(":"); // get this an array, now need to grab the instagram string which is [4] and the telegram which is [9]
+                                socialIG = socialMediaTags[4].substr(0, socialMediaTags[4].indexOf(',')); //will get just the tag by itself
+                                socialIG = socialIG.replace(/\\/g, ''); //remove that backslash
+                                socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
+                                jq('#ul' + parentUL).append('<br /><li class="am-value"> ' + socialTelegram + '       ' + socialIG + '</li>');
+
+                            }
                         }
+                        iteration++;
                     });
+
                 });
             }
         }

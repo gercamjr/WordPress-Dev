@@ -47,6 +47,19 @@ function showAdminPage()
     echo '<div id="dt_example"><div id="container"><form><div id="demo">';
     echo '<table cellpadding="0" cellspacing="0" border="0" class="display" id="customAdminView"><thead><tr>';
 
+    function formatNYCTime($theTime) {
+        $dtN = new DateTime($theTime, new DateTimeZone("UTC"));
+        $dtN->setTimezone(new DateTimeZone('America/New_York'));
+        return $dtN->format("m-d-Y h:i a");
+    }
+    
+    function extractSocialTags($theTag) { //{"1":{"label":"Instagram:","value":"@lilshawtygem","type":"text"},"2":{"label":"Telegram:","value":"@shawtysupreme","type":"text"}}
+        $theTag = substr($theTag, 36); //eliminate the garbage from first 36 characters
+        $theTag = substr($theTag,0, -16);
+        $IGTag = strtok($theTag, '"');
+        return $theTag;
+    }
+
     foreach ($arr[0] as $k => $v) {
         echo "<td>" . $k . "</td>";
     }
@@ -67,21 +80,11 @@ function showAdminPage()
         echo "</tr>";
     }
 
-    function formatNYCTime($theTime) {
-        $dtN = new DateTime($theTime, new DateTimeZone("UTC"));
-        $dtN->setTimezone(new DateTimeZone('America/New_York'));
-        return $dtN->format("m-d-Y h:i a");
-    }
-
-    function extractSocialTags($theTag) {
-        $theTag = substr($theTag, 37); //eliminate the garbage from first 36 characters
-
-    }
-
-
     echo '</tbody></table>';
     echo '</div></form></div></div>';
 }
+
+
 
 function register_my_plugin_scripts() {
     wp_register_style( 'showAdminPage', plugins_url('Display-Booked-Attendees/pluginpage.css'));
