@@ -9,7 +9,7 @@ jq(document).ready(function() {
                 //do something special
                 // get info on first load
                 var info = gatherAppointmentData();
-                // return { timeZone, dateRangeS, dateRangeE, userEmail, servs, appsDates, appTimes };
+                // return { done, dateRangeS, dateRangeE, userEmail, servs, appsDates, appTimes };
                 userTZ = info.timeZone;
                 dateRangeStart = info.dateRangeS;
                 dateRangeEnd = info.dateRangeE;
