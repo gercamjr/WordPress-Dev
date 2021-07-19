@@ -1,29 +1,23 @@
 var jq = jQuery.noConflict();
 jq(document).ready(function() {
+    //add the popup div
+    var popupText = '<div id="my-pop-up">	<ul id="my-hover">Models signed up: <br />	</ul>	</div>';
+    jq("body").append(popupText);
+    var prevService = "";
+    var servName = "";
+    var moveLeft = 20;
+    var moveDown = 10;
+    //got to wait for the booking stuff to load oh si
+    setTimeout(
+        function() {
+            //do something special
+            // get info on first load
+            // get the month and year
 
-
-
-
-    // get the month and year
-
-    //get the service name from the h2 element after the form loads of course
-    var observer = new MutationSummary({
-        callback: colorCodeTime,
-        queries: [{
-            element: 'div#am-step-booking-catalog0-calendar'
-        }]
-    });
-
-    function colorCodeTime(summaries) {
-        var calendarSummary = summaries[0];
-        calendarSummary.added.forEach(function() {
-            var prevService = "";
-            var servName = "";
-            var moveLeft = 20;
-            var moveDown = 10;
-            console.log("ready!");
+            //get the service name from the h2 element after the form loads of course
+            //var observer = new MutationObserver(changeThemColors);
             servName = jq("#am-service-booking > div > div.am-service > div.am-service-header > div.am-service-data > div.am-service-title > h2").text().trim();
-
+            console.log("ready! in what service are we booking? " + servName);
 
             prevService = servName;
             console.log("handled the service being clicked for 1st time quite well. serviceName: " + servName);
@@ -46,6 +40,7 @@ jq(document).ready(function() {
                 day = jq(this).text().replace(/[^0-9]/g, '');
                 console.log("day=" + day);
                 if (!prevDayPicked) {
+
                     prevDayPicked = day;
                     console.log("prevDayPicked: " + prevDayPicked);
                     bookingStart = bookingStart.concat(day);
@@ -68,6 +63,7 @@ jq(document).ready(function() {
                             //console.log(JSON.stringify(response));
                             //here comes the fun! find the time slots with appointments in the DOM and change their background oh yeah!
                             changeBgColors(response);
+                            createPopUp(response.modelTags);
 
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -98,6 +94,7 @@ jq(document).ready(function() {
                             //console.log(JSON.stringify(response));
                             //here comes the fun! find the time slots with appointments in the DOM and change their background oh yeah!
                             changeBgColors(response);
+                            createPopUp(response.modelTags);
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
                             console.log("we failed again: " + JSON.stringify(XMLHttpRequest));
@@ -158,6 +155,7 @@ jq(document).ready(function() {
                             //console.log(JSON.stringify(response));
                             //here comes the fun! find the time slots with appointments in the DOM and change their background oh yeah!
                             changeBgColors(response);
+                            createPopUp(response.modelTags);
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
                             console.log("we failed again: " + JSON.stringify(XMLHttpRequest));
@@ -186,6 +184,7 @@ jq(document).ready(function() {
                             //console.log(JSON.stringify(response));
                             //here comes the fun! find the time slots with appointments in the DOM and change their background oh yeah!
                             changeBgColors(response);
+                            createPopUp(response.modelTags);
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
                             console.log("we failed again: " + JSON.stringify(XMLHttpRequest));
@@ -206,22 +205,25 @@ jq(document).ready(function() {
             //bookingStart = bookingStart.substring(0, 8);
             // lets change the colors now
             function changeBgColors(response) {
+                //access the bookCount with data->bookCount
+                //access the models with data->modelTags
                 //value key for the colors
                 console.log(response);
                 var colors = { "1": "#48E2AB", "2": "#F98484", "3": "#7470FF" };
+                var bookLength = response.bookCount.length;
                 var time_slot, attendees, telegramTag = '';
                 var timez = Intl.DateTimeFormat().resolvedOptions().timeZone; //guess at the user's timezone
-                for (var i = 0; i < response.length; i++) {
+                for (var i = 0; i < bookLength; i++) {
                     //$dt = new DateTime($appointmentDateTime, new DateTimeZone($timeZone));
-                    console.log("the date we are going through: " + response[i].bookingStart);
-                    var newStr = response[i].bookingStart;
+                    console.log("the date we are going through: " + response.bookCount[i].bookingStart);
+                    var newStr = response.bookCount[i].bookingStart;
                     //change the date from db to the user's timezone, currently dates are being stored in UTC time zone
                     newStr = moment.tz(newStr, "UTC");
                     userTz = newStr.clone().tz(timez).format('YYYY-MM-DD HH:mm:ss');
                     console.log("bookingStart in user's timezone: " + userTz);
                     time_slot = userTz.substring(11, 16);
                     console.log("the time slot we got: " + time_slot);
-                    attendees = response[i].booked; //get the number of models booked for the specific time slot we are iterating through
+                    attendees = response.bookCount[i].booked; //get the number of models booked for the specific time slot we are iterating through
                     //telegramTag = extractTelegram(response[i].customFields);
                     //find the time slot and change the bg color, we is almost there
                     console.log("the color being used: " + colors[attendees]);
@@ -231,7 +233,7 @@ jq(document).ready(function() {
                     console.log("supposedly changed the background color");
                     // we made it
                 }
-                //createPopUp(response);
+
             }
 
             function clearTimeSlots() {
@@ -260,24 +262,66 @@ jq(document).ready(function() {
             }
 
             function createPopUp(data) {
+
                 jq('label.myHoverTrigger').hover(function(e) {
-                    var left = e.pageX;
-                    var top = e.pageY - 140;
-                    console.log("toggling the popup: ");
-                    //jq("div#my-pop-up").css({ left: left });
-                    jq("div#my-pop-up").css({ top: top });
-                    jq('div#my-pop-up').css("display", "block");
+                        var left = e.pageX - 150;
+                        var top = e.pageY - 100;
+                        var target = e.target;
+                        var bookingTime = target.textContent.trim();
+                        var currentModel, telegramTag, time_slot = "";
+                        var timez = Intl.DateTimeFormat().resolvedOptions().timeZone; //guess at the user's timezone
+                        console.log("toggling the popup for booking time: " + bookingTime);
+                        //jq("div#my-pop-up").css({ left: left });
+                        jq("div#my-pop-up").css("left", left);
+                        jq("div#my-pop-up").css("top", top);
 
-                    jq("ul#my-hover").append("<li>@model1</li>");
+                        jq('div#my-pop-up').css("display", "inline");
+                        jq("div#my-pop-up").css("position", "absolute");
+                        for (var i = 0; i < data.length; i++) {
+                            //$dt = new DateTime($appointmentDateTime, new DateTimeZone($timeZone));
+                            console.log("the date we are going through: " + data[i].bookingStart);
+                            var newStr = data[i].bookingStart;
+                            //change the date from db to the user's timezone, currently dates are being stored in UTC time zone
+                            newStr = moment.tz(newStr, "UTC");
+                            userTz = newStr.clone().tz(timez).format('YYYY-MM-DD HH:mm:ss');
+                            console.log("bookingStart in user's timezone: " + userTz);
+                            time_slot = userTz.substring(11, 16);
+                            time_slot = moment(time_slot, 'HH:mm').format('hh:mm a');
+                            console.log("the time slot we got: " + time_slot);
+                            if (time_slot == bookingTime) {
+                                currentModel = data[i].customFields; //get the social media tags of the model we is iterating through for an appointment
+                                telegramTag = extractTelegram(currentModel);
+                                //find the time slot and change the bg color, we is almost there
+                                console.log("the telegram tag being inserted: " + telegramTag);
+                                //add the li for the current model
+                                jq("ul#my-hover").append("<li>" + telegramTag + "</li>");
+                            }
+                            // we made it
+                        }
 
-                }, function(e) {
-                    jq("ul#my-hover > li").remove();
-                    jq('div#my-pop-up').css("display", "none");
-                });
+
+                    },
+                    function(e) {
+                        jq("ul#my-hover > li").remove();
+                        jq('div#my-pop-up').css("display", "none");
+                    });
+
+                function extractTelegram(currentModel) {
+                    let socialMediaTags = currentModel;
+                    // console.log(socialMediaTags);
+                    socialMediaTags = socialMediaTags.replace(/\"/g, ''); // get this; "1:label:Instagram:,value:anothertest,type:text,2:label:Telegram:,value:anothertest,type:text"
+                    // console.log(socialMediaTags);
+                    socialMediaTags = socialMediaTags.split(":"); // get this an array, now need to grab the instagram string which is [4] and the telegram which is [9]
+                    socialIG = socialMediaTags[4].substr(0, socialMediaTags[4].indexOf(',')); //will get just the tag by itself
+                    socialIG = socialIG.replace(/\\/g, ''); //remove that backslash
+                    socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
+                    return socialTelegram;
+                }
+                /*jq('label.myHoverTrigger').on('touchstart touchend', function(e) {
+                    e.preventDefault();
+                    $(this).toggleClass('hover_effect');
+                });*/
             }
-        });
-    }
-
-
+        }, 3500);
 
 });

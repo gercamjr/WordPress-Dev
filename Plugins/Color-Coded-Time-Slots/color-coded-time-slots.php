@@ -43,6 +43,8 @@ function change_Colors()
         $sql2 = $wpdb->prepare("select apps.bookingStart, books.customFields from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id where apps.bookingStart like %s and apps.status = 'approved' and apps.serviceId = %d order by apps.bookingStart;", $bookingDay, $serviceId);
         $result2 = $wpdb->get_results($sql2);
 
+        $data1 = array();
+        $data2 = array();
         foreach ($result as $row) {
             $data1[] = $row;
         }
@@ -50,10 +52,12 @@ function change_Colors()
         foreach ($result2 as $row) {
             $data2[] = $row;
         }
-        $data['modelTags'] = $data[2];
+        $data['modelTags'] = $data2;
 
         //error_log("came back from sql query: " . print_r($result));
-        echo (json_encode($result));
+        echo (json_encode($data));
+        //access the bookCount with data->bookCount
+        //access the models with data->modelTags
         error_log("echoed the json encoded query results...");
     }
     die();
@@ -66,7 +70,7 @@ function script_enqueuer_colors($hook)
         wp_register_script("color-coded-time-slots", plugin_dir_url(__FILE__) . 'color-coded-time-slots.js', array('jquery'));
         wp_register_script("color-coded-moment", plugin_dir_url(__FILE__) . 'moment.js');
         wp_register_script("color-coded-moment-timezone", plugin_dir_url(__FILE__) . 'moment-timezone-with-data.js');
-       // wp_register_script("mutationsss", plugin_dir_url(__FILE__) . 'mutation-summary.js');
+        wp_register_script("observations", plugin_dir_url(__FILE__) . 'jquery-observe.js');
 
         // localize the script to your domain name, so that you can reference the url to admin-ajax.php file easily
         wp_localize_script('color-coded-time-slots', 'myAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
@@ -76,5 +80,6 @@ function script_enqueuer_colors($hook)
         wp_enqueue_script('color-coded-time-slots');
         wp_enqueue_script("color-coded-moment");
         wp_enqueue_script("color-coded-moment-timezone");
-        //wp_enqueue_script('mutationsss')
+        wp_enqueue_script("observations");
+        
 }
