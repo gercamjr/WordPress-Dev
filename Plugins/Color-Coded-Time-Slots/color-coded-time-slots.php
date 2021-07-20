@@ -38,9 +38,9 @@ function change_Colors()
         );
         $serviceId = $services[$servName];
         error_log("the serviceId: " . $serviceId);
-        $sql = $wpdb->prepare("select apps.bookingStart, COUNT(*) as booked from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id where apps.bookingStart like %s and apps.status = 'approved' and apps.serviceId = %d GROUP BY books.appointmentId;", $bookingDay, $serviceId);
+        $sql = $wpdb->prepare("select apps.bookingStart, COUNT(*) as booked from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id where apps.bookingStart like %s and (apps.status = 'approved' or apps.status ='pending') and apps.serviceId = %d GROUP BY books.appointmentId order by apps.bookingStart;", $bookingDay, $serviceId);
         $result = $wpdb->get_results($sql);
-        $sql2 = $wpdb->prepare("select apps.bookingStart, books.customFields from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id where apps.bookingStart like %s and apps.status = 'approved' and apps.serviceId = %d order by apps.bookingStart;", $bookingDay, $serviceId);
+        $sql2 = $wpdb->prepare("select apps.bookingStart, books.customFields from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id where apps.bookingStart like %s and (apps.status = 'approved' or apps.status ='pending') and apps.serviceId = %d order by apps.bookingStart;", $bookingDay, $serviceId);
         $result2 = $wpdb->get_results($sql2);
 
         $data1 = array();

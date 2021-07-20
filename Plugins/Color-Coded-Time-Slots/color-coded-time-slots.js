@@ -1,11 +1,13 @@
 var jq = jQuery.noConflict();
 jq(document).ready(function() {
     //add the popup div
-    var popupText = '<div id="my-pop-up">	<ul id="my-hover">Models signed up: <br />	</ul>	</div>';
-    jq("body").append(popupText);
+    //var popupText = '<div id="my-pop-up">	<ul id="my-hover">Models signed up: <br />	</ul>	</div>';
+    //jq("body").append(popupText);
     var prevService = "";
     var servName = "";
     var moveLeft = 20;
+    var datArr = [];
+    var month, year, bookingStart = "";
     var moveDown = 10;
     //got to wait for the booking stuff to load oh si
     setTimeout(
@@ -20,29 +22,102 @@ jq(document).ready(function() {
             console.log("ready! in what service are we booking? " + servName);
 
             prevService = servName;
-            console.log("handled the service being clicked for 1st time quite well. serviceName: " + servName);
-            var datArr = jq("div.c-title").text().split(" ");
-            var month = datArr[16];
-            var year = datArr[17].substring(0, 4);
+            datArr = jq("div.c-title").text().split(" ");
+            month = datArr[16];
+            year = datArr[17].substring(0, 4);
             console.log(year);
             console.log(month);
             // turn month name into its corresponding MM format number
-            var bookingStart = findBookingStart(month, year);
+            bookingStart = findBookingStart(month, year);
             console.log("the bookingStart month and year: " + bookingStart);
             var day = "";
             var prevDayPicked = "";
             //find out which day was picked 
-            jq(".c-day-content").click(function() {
+            //jq(".am-service").on('click', function(e) {
+            /*  datArr = jq("div.c-title").text().split(" ");
+              month = datArr[16];
+              year = datArr[17].substring(0, 4);
+              console.log(year);
+              console.log(month);
+              // turn month name into its corresponding MM format number
+              bookingStart = findBookingStart(month, year);
+              console.log("the bookingStart month and year: " + bookingStart);*/
+            jq("#am-calendar-picker > div > div.c-day-content-wrapper > div ").on('mouseup', function(e) {
+                clearTimeSlots();
+                datArr = jq("div.c-title").text().split(" ");
+                console.log("a single day was picked");
+                month = datArr[16];
+                year = datArr[17].substring(0, 4);
+                bookingStart = findBookingStart(month, year);
+                console.log("the bookingStart month and year: " + bookingStart);
                 bookingStart = bookingStart.substring(0, 8);
-                console.log("handled the day being picked quite nicely...");
 
                 //logic for the first time a day is picked...
-                day = jq(this).text().replace(/[^0-9]/g, '');
+                day = jq(e.target).text().replace(/[^0-9]/g, '');
                 console.log("day=" + day);
-                if (!prevDayPicked) {
+
+                prevDayPicked = day;
+                console.log("prevDayPicked: " + prevDayPicked);
+                bookingStart = bookingStart.concat(day);
+                //query the db looking for time slots with appointments and returning this array
+                //console.log(myAjax.ajaxurl);
+                //figure out how to do the nonce thing for security purposes
+                nonce = jq(this).attr("data-nonce");
+                jq.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: myAjax.ajaxurl,
+                    data: {
+                        action: "color-coded-time-slots",
+                        dateSelected: bookingStart,
+                        serviceName: servName,
+                        nonce: nonce
+                    },
+                    success: function(response) {
+                        console.log("we are in the callback");
+                        //console.log(JSON.stringify(response));
+                        //here comes the fun! find the time slots with appointments in the DOM and change their background oh yeah!
+                        changeBgColors(response);
+                        //createPopUp(response.modelTags);
+
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        console.log("we failed again: " + JSON.stringify(XMLHttpRequest));
+                        console.log("text status: " + textStatus);
+                        console.log("errorThrown: " + errorThrown)
+                    }
+                });
+
+            });
+            jq(".am-service").on('click', function(e) {
+                datArr = jq("div.c-title").text().split(" ");
+                month = datArr[16];
+                year = datArr[17].substring(0, 4);
+                console.log(year);
+                console.log(month);
+                // turn month name into its corresponding MM format number
+                bookingStart = findBookingStart(month, year);
+                console.log("the bookingStart month and year: " + bookingStart);
+                jq("#am-calendar-picker > div > div.c-day-content-wrapper > div ").on('mouseup', function(e) {
+                    clearTimeSlots();
+                    datArr = jq("div.c-title").text().split(" ");
+                    console.log("a single day was picked");
+                    month = datArr[16];
+                    year = datArr[17].substring(0, 4);
+                    bookingStart = findBookingStart(month, year);
+                    console.log("the bookingStart month and year: " + bookingStart);
+                    bookingStart = bookingStart.substring(0, 8);
+                    console.log("the edited bookingStart: " + bookingStart);
+
+                    //logic for the first time a day is picked...
+                    day = jq(e.target).text().replace(/[^0-9]/g, '');
+                    if (day.length == 1) {
+                        day = "0" + day;
+                    }
+                    console.log("day=" + day);
 
                     prevDayPicked = day;
-                    console.log("prevDayPicked: " + prevDayPicked);
+                    //console.log("prevDayPicked: " + prevDayPicked);
                     bookingStart = bookingStart.concat(day);
                     //query the db looking for time slots with appointments and returning this array
                     //console.log(myAjax.ajaxurl);
@@ -63,7 +138,7 @@ jq(document).ready(function() {
                             //console.log(JSON.stringify(response));
                             //here comes the fun! find the time slots with appointments in the DOM and change their background oh yeah!
                             changeBgColors(response);
-                            createPopUp(response.modelTags);
+                            //createPopUp(response.modelTags);
 
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -72,131 +147,8 @@ jq(document).ready(function() {
                             console.log("errorThrown: " + errorThrown)
                         }
                     });
-                } else if (prevDayPicked !== day) { //user clicked on a different day so we need to clear the time Slots
-                    prevDayPicked = day;
-                    bookingStart = bookingStart.concat(day);
-                    console.log("picked a different day so we need to clear the time slots");
-                    //since we changed the day we need to put the time slots back to their original color
-                    clearTimeSlots(day);
-                    nonce = jq(this).attr("data-nonce");
-                    jq.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: myAjax.ajaxurl,
-                        data: {
-                            action: "color-coded-time-slots",
-                            dateSelected: bookingStart,
-                            serviceName: servName,
-                            nonce: nonce
-                        },
-                        success: function(response) {
-                            console.log("we are in the callback");
-                            //console.log(JSON.stringify(response));
-                            //here comes the fun! find the time slots with appointments in the DOM and change their background oh yeah!
-                            changeBgColors(response);
-                            createPopUp(response.modelTags);
-                        },
-                        error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            console.log("we failed again: " + JSON.stringify(XMLHttpRequest));
-                            console.log("text status: " + textStatus);
-                            console.log("errorThrown: " + errorThrown)
-                        }
-                    });
 
-                }
-
-                console.log("exited the click handler");
-
-
-                //clearing time slots
-
-            });
-
-            //clicked on a different service within the same booking
-            prevService = servName;
-            console.log("handled the service being clicked quite well. serviceName: " + servName);
-            var datArr = jq(".c-title").text().split(" ");
-            var month = datArr[16];
-            var year = datArr[17].substring(0, 4);
-            console.log(year);
-            console.log(month);
-
-            // turn month name into its corresponding MM format number
-            var bookingStart = findBookingStart(month, year);
-            console.log("the bookingStart month and year" + bookingStart);
-            var day = "";
-            var prevDayPicked = "";
-            //find out which day was picked 
-            jq(".c-day-content").click(function() {
-                bookingStart = bookingStart.substring(0, 8);
-                console.log("handled the day being picked quite nicely...");
-                //logic for the first time a day is picked...
-                day = jq(this).text().replace(/[^0-9]/g, '');
-                console.log("day=" + day);
-                if (!prevDayPicked) {
-                    prevDayPicked = day;
-                    console.log("prevDayPicked: " + prevDayPicked);
-                    bookingStart = bookingStart.concat(day);
-                    console.log(myAjax.ajaxurl);
-                    //figure out how to do the nonce thing for security purposes
-                    nonce = jq(this).attr("data-nonce");
-                    jq.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: myAjax.ajaxurl,
-                        data: {
-                            action: "color-coded-time-slots",
-                            dateSelected: bookingStart,
-                            serviceName: servName,
-                            nonce: nonce
-                        },
-                        success: function(response) {
-                            console.log("we are in the callback");
-                            //console.log(JSON.stringify(response));
-                            //here comes the fun! find the time slots with appointments in the DOM and change their background oh yeah!
-                            changeBgColors(response);
-                            createPopUp(response.modelTags);
-                        },
-                        error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            console.log("we failed again: " + JSON.stringify(XMLHttpRequest));
-                            console.log("text status: " + textStatus);
-                            console.log("errorThrown: " + errorThrown)
-                        }
-                    });
-                } else if (prevDayPicked !== day) { //user clicked on a different day so we need to clear the time Slots
-                    prevDayPicked = day;
-                    bookingStart = bookingStart.concat(day);
-                    console.log("picked a different day so we need to clear the time slots");
-                    clearTimeSlots();
-                    nonce = jq(this).attr("data-nonce");
-                    jq.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: myAjax.ajaxurl,
-                        data: {
-                            action: "color-coded-time-slots",
-                            dateSelected: bookingStart,
-                            serviceName: servName,
-                            nonce: nonce
-                        },
-                        success: function(response) {
-                            console.log("we are in the callback");
-                            //console.log(JSON.stringify(response));
-                            //here comes the fun! find the time slots with appointments in the DOM and change their background oh yeah!
-                            changeBgColors(response);
-                            createPopUp(response.modelTags);
-                        },
-                        error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            console.log("we failed again: " + JSON.stringify(XMLHttpRequest));
-                            console.log("text status: " + textStatus);
-                            console.log("errorThrown: " + errorThrown)
-                        }
-                    });
-
-                } else if (prevDayPicked === day) {
-                    //clicked on the same day, don't need to do anything
-                }
-
+                });
             });
 
 
@@ -237,6 +189,7 @@ jq(document).ready(function() {
             }
 
             function clearTimeSlots() {
+                console.log("clearing the timeslots");
                 jq("label.el-radio-button.el-radio-button--medium").css("background", "transparent");
             }
 
