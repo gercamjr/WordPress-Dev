@@ -32,16 +32,6 @@ jq(document).ready(function() {
             console.log("the bookingStart month and year: " + bookingStart);
             var day = "";
             var prevDayPicked = "";
-            //find out which day was picked 
-            //jq(".am-service").on('click', function(e) {
-            /*  datArr = jq("div.c-title").text().split(" ");
-              month = datArr[16];
-              year = datArr[17].substring(0, 4);
-              console.log(year);
-              console.log(month);
-              // turn month name into its corresponding MM format number
-              bookingStart = findBookingStart(month, year);
-              console.log("the bookingStart month and year: " + bookingStart);*/
             jq("#am-calendar-picker > div > div.c-day-content-wrapper > div ").on('mouseup', function(e) {
                 clearTimeSlots();
                 datArr = jq("div.c-title").text().split(" ");
