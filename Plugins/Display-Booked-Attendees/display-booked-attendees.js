@@ -16,51 +16,76 @@ jq(document).ready(function() {
             var dates = jq('#am-cabinet > div.am-cabinet-dashboard > div.am-cabinet-content > span > div.am-cabinet-dashboard-appointments > span > div > div.am-cabinet-list > div > div.am-cabinet-list-day-title');
             var userTimeZone = jq('#am-cabinet > div.am-cabinet-dashboard > div.am-cabinet-dashboard-header > div.am-cabinet-timezone > div > div > input').val(); //get the current time zone
             var servs = jq("p.am-col-title:contains('session')"); //get all the services on the page=to appointment times
+            var prevDate, currentDate = "";
             console.log("gathering and sending data...");
+            jq('div[id^="el-collapse-content-"] > div > div > div > div').append("<div class='el-row'><ul class='am-data'>Models: </ul></div>");
+            var $ulis = jQuery("div[id^='el-collapse-content-'] > div > div > div > div >div > ul"); //get all the new ul's we created so we can append to them one by one
+            $ulis.attr('id', function(index) {
+                return 'ul' + index;
+            });
+            var indexUL = 0;
             if (dates.length > 0) { // we actually have appointments so lets go through each one and find the info we need!!!!!!
-                for (i = 0; i < dates.length; i++) {
-                    var currentDate = jq(dates[i]).text().trim(); //getting just the date trimmed
-                    var times = jQuery("p:contains('Time')");
-                    if (times.length > 0) {
-                        console.log("found this many times: " + times.length);
+                var times = jQuery("p:contains('Time')");
+                console.log("found this many times: " + times.length);
+                if (times.length > 0) {
+                    for (i = 0; i < dates.length; i++) {
+                        prevDate = jq(dates[i]).text().trim(); //getting just the date trimmed
                         for (j = 0; j < times.length; j++) { //going through the appointment Times one by one
-                            console.log("iterating through the following time: " + jQuery(times[j]).next("h4").text().trim());
-                            var localt = jQuery(times[j]).next("h4").text();
-                            var fullDate = currentDate + " " + localt;
-                            var dt = moment(fullDate + localt, ["MMM dd, YYYY hh:mm a"]).tz('UTC').format('YYYY-mm-dd HH:mm:ss'); //getting the current date and time the way its saved in the DB
-                            console.log('found the following date: ' + fullDate);
-                            console.log('the UTC equivalent: ' + dt);
-                            var nonce = jq(this).attr("data-nonce");
-                            jq.ajax({
-                                type: "POST",
-                                dataType: "json",
-                                url: myAjax.ajaxurl,
-                                data: {
-                                    action: "display-booked-attendees",
-                                    appTime: dt,
-                                    service: servs,
-                                    nonce: nonce
+                            console.log("iterating through the following time: " + jq(times[j]).next("h4").text().trim());
 
-                                },
-                                success: function(response) {
-                                    console.log("ajax request was a success!");
-                                    displayAttendees(response);
-                                },
-                                error: function(XMLHttpRequest, textStatus, errorThrown) {
-                                    console.log("we failed again: " + JSON.stringify(XMLHttpRequest));
-                                    console.log("text status: " + textStatus);
-                                    console.log("errorThrown: " + errorThrown)
-                                }
+                            currentDate = jq(times[j]).closest('div.el-collapse').prev().text().trim(); //this gives us the current time's appointment dates
+                            if (prevDate == currentDate) {
+                                var localt = jq(times[j]).next("h4").text() //get the next appointment's time for the current dates
+                                if (localt.indexOf('local') >= 0)
+                                    localt = localt.substring(0, localt.length - 6);
 
-                            });
+                                console.log("iterating through the following time: " + localt);
+                                var fullDate = currentDate + " " + localt;
+                                console.log("the full date before converting to UTC: " + fullDate);
+                                var dt = moment(fullDate, ["MMMM DD YYYY hh:mm a"]).tz('UTC').format('YYYY-MM-DD HH:mm:ss'); //getting the current date and time the way its saved in the DB
+                                console.log('found the following date: ' + fullDate);
+                                console.log('the UTC equivalent: ' + dt);
+                                var nonce = jq(this).attr("data-nonce");
+                                var currentServ = jq(servs[j]).next('h4').text().trim();
+                                console.log("current service:" + currentServ);
+                                jq.ajax({
+                                    type: "POST",
+                                    async: false,
+                                    dataType: "json",
+                                    url: myAjax.ajaxurl,
+                                    data: {
+                                        action: "display-booked-attendees",
+                                        appTime: dt,
+                                        service: currentServ,
+                                        nonce: nonce
+
+                                    },
+                                    success: function(response) {
+                                        console.log("ajax request was a success!");
+                                        displayAttendees(response, indexUL);
+                                    },
+                                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                                        console.log("we failed again: " + JSON.stringify(XMLHttpRequest));
+                                        console.log("text status: " + textStatus);
+                                        console.log("errorThrown: " + errorThrown)
+                                    }
+
+                                });
+                            } else {
+                                console.log("continuing to the next iteration");
+                                continue; //continue to the next time since I just got a bunch of times put together with no specific date reference, have to iterate through all of them each time
+                            }
+
                         }
+
+                        indexUL++;
                     }
                 }
             }
         }
 
 
-        function displayAttendees(data) {
+        function displayAttendees(data, currentUL) {
             //should have received an array of arrays that looks like this:
             //   data[date][time] = "{"1":{"label":"Instagram:","value":"starig","type":"text"},"2":{"label":"Telegram:","value":"startele","type":"text"}}"
             //
@@ -68,82 +93,24 @@ jq(document).ready(function() {
             //
             console.log("made it to displayAttendees function!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             console.log(data);
+            console.log('the current UL index: ' + currentUL);
             // adding in our custom html stuff to load in the modelsssssssssss
-            jq('div[id^="el-collapse-content-"] > div > div > div > div').append("<div class='el-row'><ul class='am-data'>Models: </ul></div>");
-            var $ulis = jQuery("div[id^='el-collapse-content-'] > div > div > div > div >div > ul"); //get all the new ul's we created so we can append to them one by one
-            $ulis.attr('id', function(index) {
-                return 'ul' + index;
-            });
-            console.log("did we get allTimes? " + allTimes);
-            var prevTime = "";
-            var socialIG = "";
-            var socialTelegram = "";
-            var parentUL = 0;
-            var nextUL = 0;
-            var iteration_lim = servs.length;
-            var iteration = 0;
-            var prevServ, newServ = "";
 
-            jq.each(data, function(index, obj) {
-                jq.each(obj, function(key, value) {
-                    if (prevTime !== key) {
+            jq.each(data, function(key, value) {
+                let socialMediaTags = value[0];
+                // console.log(socialMediaTags);
+                socialMediaTags = socialMediaTags.replace(/\"/g, ''); // get this; "1:label:Instagram:,value:anothertest,type:text,2:label:Telegram:,value:anothertest,type:text"
+                console.log(socialMediaTags);
+                socialMediaTags = socialMediaTags.split(":"); // get this an array, now need to grab the instagram string which is [4] and the telegram which is [9]
+                socialIG = socialMediaTags[4].substr(0, socialMediaTags[4].indexOf(',')); //will get just the tag by itself
+                socialIG = socialIG.replace(/\\/g, ''); //remove that backslash
+                socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
+                jq('#ul' + currentUL).append('<br /><li class="am-value"> ' + socialTelegram + '       ' + '<a href="https://' + socialIG + '"' + ' target="_blank">' + socialIG + ' </a></li > ');
 
-                        newServ = servs[iteration];
-                        prevServ = newServ;
+                //jq('#ul' + parentUL).append('<br /><li class="am-value"> ' + socialTelegram + '       ' + socialIG + '</li>');
 
-                        parentUL = nextUL;
-                        console.log(key);
-                        console.log("in the first if statement: " + value[0]);
-                        prevTime = key;
-                        let socialMediaTags = value[0];
-                        // console.log(socialMediaTags);
-                        socialMediaTags = socialMediaTags.replace(/\"/g, ''); // get this; "1:label:Instagram:,value:anothertest,type:text,2:label:Telegram:,value:anothertest,type:text"
-                        // console.log(socialMediaTags);
-                        socialMediaTags = socialMediaTags.split(":"); // get this an array, now need to grab the instagram string which is [4] and the telegram which is [9]
-                        socialIG = socialMediaTags[4].substr(0, socialMediaTags[4].indexOf(',')); //will get just the tag by itself
-                        socialIG = socialIG.replace(/\\/g, ''); //remove that backslash
-                        socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
-                        jq('#ul' + parentUL).append('<br /><li class="am-value"> ' + socialTelegram + '       ' + socialIG + '</li>');
-                        nextUL++; // this should be ittttttttttttttttt lets littt it up nextUL++;
-                    } else {
-                        prevTime = key;
-                        newServ = servs[iteration];
-                        console.log("we found a duplicate time, could be same service or a different one: " + newServ);
-                        if (prevServ == newServ) {
-                            console.log("ok so it is the same service, should be a different model signed up");
-                            let socialMediaTags = value[0];
-                            //console.log(socialMediaTags);
-                            socialMediaTags = socialMediaTags.replace(/\"/g, ''); // get this; "1:label:Instagram:,value:anothertest,type:text,2:label:Telegram:,value:anothertest,type:text"
-                            //console.log(socialMediaTags);
-                            socialMediaTags = socialMediaTags.split(":"); // get this an array, now need to grab the instagram string which is [4] and the telegram which is [9]
-                            socialIG = socialMediaTags[4].substr(0, socialMediaTags[4].indexOf(',')); //will get just the tag by itself
-                            socialIG = socialIG.replace(/\\/g, ''); //remove that backslash
-                            socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
-                            jq('#ul' + parentUL).append('<br /><li class="am-value"> ' + socialTelegram + '       ' + socialIG + '</li>');
-                        } else {
-                            console.log("ok so it is a different service, meaning it is a new appointment: ");
-                            prevServ = newServ;
-                            console.log(newServ);
-                            //
-                            parentUL = nextUL;
-                            nextUL++;
-                            let socialMediaTags = value[0];
-                            //console.log(socialMediaTags);
-                            socialMediaTags = socialMediaTags.replace(/\"/g, ''); // get this; "1:label:Instagram:,value:anothertest,type:text,2:label:Telegram:,value:anothertest,type:text"
-                            //console.log(socialMediaTags);
-                            socialMediaTags = socialMediaTags.split(":"); // get this an array, now need to grab the instagram string which is [4] and the telegram which is [9]
-                            socialIG = socialMediaTags[4].substr(0, socialMediaTags[4].indexOf(',')); //will get just the tag by itself
-                            socialIG = socialIG.replace(/\\/g, ''); //remove that backslash
-                            socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
-                            jq('#ul' + parentUL).append('<br /><li class="am-value"> ' + socialTelegram + '       ' + socialIG + '</li>');
-
-                        }
-                    }
-                    iteration++;
-                });
 
             });
         }
     }
-
 });

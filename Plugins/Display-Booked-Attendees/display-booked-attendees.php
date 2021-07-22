@@ -30,23 +30,8 @@ add_action('admin_menu', 'add_admin_page');
 function showAdminPage()
 {
     global $wpdb;
-?>
-    <script type="text/javascript">
-        var jq = jQuery.noConflict();
-        jq(document).ready(function($) {
-            $('#customAdminView').dataTable();
-            console.log("made it to the document handler");
-        });
-    </script>
-<?php
-    echo "<h1>View Amelia Appointments (WORK IN PROGRESS)</h1>";
-
-    $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '2021-07-14' and '2021-08-12' and apps.status = 'approved' order by bookingStart;");
-    //$arr = $wpdb->get_results($sql);
-
-    echo '<div id="dt_example"><div id="container"><form><div id="demo">';
-    echo '<table cellpadding="0" cellspacing="0" border="0" class="display" id="customAdminView"><thead><tr>';
-
+    $default_tab = '10k';
+    $tab = isset($_GET['tab']) ? $_GET['tab'] : $default_tab;
     function formatNYCTime($theTime)
     {
         $dtN = new DateTime($theTime, new DateTimeZone("UTC"));
@@ -68,31 +53,138 @@ function showAdminPage()
         error_log("the tag we extraced: " . $theTag);
         return $theTag;
     }
+?>
+    <!--Our admin page content should all be inside .wrap -->
+    <div class="wrap">
+        <!-- Print the page title -->
+        <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+        <!-- Here are our tabs -->
+        <nav class="nav-tab-wrapper">
 
-    foreach ($arr[0] as $k => $v) {
-        echo "<td>" . $k . "</td>";
-    }
+            <a href="?page=custom_admin_amelia_appointments&tab=10k" class="nav-tab <?php if ($tab === '10k') : ?>nav-tab-active<?php endif; ?>">10k+ IG Live</a>
+            <a href="?page=custom_admin_amelia_appointments&tab=nomin" class="nav-tab <?php if ($tab === 'nomin') : ?>nav-tab-active<?php endif; ?>">No Min</a>
+        </nav>
 
-    echo '</tr></thead><tbody>';
+        <div class="tab-content">
 
-    foreach ($arr as $i => $j) {
-        echo "<tr>";
-        foreach ($arr[$i] as $k => $v) {
-            if ($k == "AppointmentTime") {
-                error_log("the v to format for nyctime: " . $v);
-                $v = formatNYCTime($v);
-                error_log("the v formatted: " . $v);
-            } else if ($k == "SocialMediaTags") {
-                error_log("extracting the social media tags...");
-                $v = extractSocialTags($v);
-            }
-            echo "<td>" . $v . "</td>";
-        }
-        echo "</tr>";
-    }
+            <?php switch ($tab):
+                case '10k':
+                    echo '<script type="text/javascript">
+                    var jq = jQuery.noConflict();
+                    jq(document).ready(function($) {
+                    $("#customAdminView").dataTable();
+                    console.log("made it to the document handler");
+                    });
+                    </script>'; //Put your HTML here
 
-    echo '</tbody></table>';
-    echo '</div></form></div></div>';
+                    echo "<h1>View 10k+ IG Live Amelia Appointments (7-22 through 7-25)</h1>";
+
+                    $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '2021-07-22' and '2021-07-25' and apps.status = 'approved' and apps.serviceId = 3 order by bookingStart;");
+                    //$arr = $wpdb->get_results($sql);
+
+                    echo '<div id="dt_example"><div id="container"><form><div id="demo">';
+                    echo '<table cellpadding="0" cellspacing="0" border="0" class="display" id="customAdminView"><thead><tr>';
+
+                    foreach ($arr[0] as $k => $v) {
+                        echo "<td>" . $k . "</td>";
+                    }
+
+                    echo '</tr></thead><tbody>';
+                    $prevDate = '';
+                    $prevTime = '';
+                    $currentDate = '';
+                    $currentTime = '';
+                    $firstDate = '';
+                    foreach ($arr as $i => $j) {
+                        echo "<tr>";
+                        foreach ($arr[$i] as $k => $v) {
+                            if ($k == "AppointmentTime") {
+                                error_log("the v to format for nyctime: " . $v);
+                                $v = formatNYCTime($v);
+                                error_log("the v formatted: " . $v);
+                            } else if ($k == "SocialMediaTags") {
+                                error_log("extracting the social media tags...");
+                                $v = extractSocialTags($v);
+                            }
+                            echo "<td>" . $v . "</td>";
+                        }
+                        echo "</tr>";
+                    }
+
+                    echo '</tbody></table>';
+                    echo '</div></form></div></div>';
+
+                    break;
+                case 'nomin':
+                    echo '<script type="text/javascript">
+                    var jq = jQuery.noConflict();
+                    jq(document).ready(function($) {
+                    $("#customAdminView").dataTable();
+                    console.log("made it to the document handler");
+                    });
+                    </script>'; //Put your HTML here
+
+                    echo "<h1>View No Minimum IG Live Amelia Appointments (7-22 through 7-25)</h1>";
+
+                    $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '2021-07-22' and '2021-07-25' and apps.status = 'approved' and apps.serviceId = 2 order by bookingStart;");
+                    //$arr = $wpdb->get_results($sql);
+
+                    echo '<div id="dt_example"><div id="container"><form><div id="demo">';
+                    echo '<table cellpadding="0" cellspacing="0" border="0" class="display" id="customAdminView"><thead><tr>';
+
+                    foreach ($arr[0] as $k => $v) {
+                        echo "<td>" . $k . "</td>";
+                    }
+
+                    echo '</tr></thead><tbody>';
+
+                    foreach ($arr as $i => $j) {
+                        echo "<tr>";
+                        foreach ($arr[$i] as $k => $v) {
+                            if ($k == "AppointmentTime") {
+                                error_log("the v to format for nyctime: " . $v);
+                                $v = formatNYCTime($v);
+                                error_log("the v formatted: " . $v);
+                            } else if ($k == "SocialMediaTags") {
+                                error_log("extracting the social media tags...");
+                                $v = extractSocialTags($v);
+                            }
+                            echo "<td>" . $v . "</td>";
+                        }
+                        echo "</tr>";
+                    }
+                    function formatNYCTime($theTime)
+                    {
+                        $dtN = new DateTime($theTime, new DateTimeZone("UTC"));
+                        $dtN->setTimezone(new DateTimeZone('America/New_York'));
+                        return $dtN->format("M d,Y h:i a");
+                    }
+
+                    function extractSocialTags($theTag)
+                    { //{"1":{"label":"Instagram:","value":"@lilshawtygem","type":"text"},"2":{"label":"Telegram:","value":"@shawtysupreme","type":"text"}}
+                        error_log("the tagstring we are working with: " . $theTag);
+                        $theLabel = explode('value":"', $theTag);
+                        $igTag = strtok($theLabel[1], '"');
+                        $igTag = str_replace('\\', '', $igTag);
+
+
+                        $telegramTag = str_replace('"', "", $theLabel[2]); //
+                        $telegramTag = substr($telegramTag, 0, -12);
+                        $theTag = $telegramTag . ' ' . $igTag;
+                        error_log("the tag we extraced: " . $theTag);
+                        return $theTag;
+                    }
+
+                    echo '</tbody></table>';
+                    echo '</div></form></div></div>';
+                    break;
+
+            endswitch; ?>
+        </div>
+    </div>
+
+<?php
+
 }
 
 
@@ -130,21 +222,20 @@ function display_booked_attendees()
         error_log("going to search for the following appointment: ");
         error_log('date and time: ' . $appTime);
         error_log('service: ' . $service);
+        $services = array('No Minimum IG Live' => 2, '10k+ IG Live' => 3, 'IG Live with @yourbestinsta' => 4, 'GG Live with @OnaArtist (4.3M)' => 5);
+        $serviceID = $services[$service];
 
-        $sql = $wpdb->prepare("select apps.bookingStart, apps.status, apps.serviceId, books.customFields as SocialTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart = %s  and apps.serviceId = %d and (apps.status = 'approved' or apps.status='pending')  order by bookingStart;", $appTime, $service);
+        $sql = $wpdb->prepare("select apps.bookingStart, apps.status, apps.serviceId, books.customFields as SocialTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart = %s  and apps.serviceId = %d and (apps.status = 'approved' or apps.status='pending')  order by bookingStart;", $appTime, $serviceID);
         $result = $wpdb->get_results($sql);
         //populate with the social media tags if results are not empty
 
         if (count($result) > 0) {
-            while ($row = mysqli_fetch_array($result)) {
-                error_log($row['customFields']);
-            }
+
             foreach ($result as $social) {
                 error_log("the social tag being added to array: " . $social->SocialTags);
                 $socialResults[] = array(
-                        $social->SocialTags
+                    $social->SocialTags
                 );
-                
             }
         }
 
