@@ -81,7 +81,7 @@ function showAdminPage()
 
                     echo "<h1>View 10k+ IG Live Amelia Appointments (7-23 through 7-26)</h1>";
 
-                    $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '2021-07-23' and '2021-07-26' and books.status = 'approved' and apps.serviceId = 3 order by bookingStart;");
+                    $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '2021-07-24' and '2021-07-27' and books.status = 'approved' and apps.serviceId = 3 order by bookingStart;");
                     //$arr = $wpdb->get_results($sql);
 
                     echo '<div id="dt_example"><div id="container"><form><div id="demo">';
@@ -107,7 +107,7 @@ function showAdminPage()
                                 $currentDate = substr($v, 0, 11);
                                 $currentTime = substr($v, 12);
                                 if ($prevDate !== $currentDate) {
-                                    echo '<tr><td></td><td></td><td></td><td></td></tr>';
+                                    echo '<tr><td></td><td></td><td></td></tr>';
                                     echo '<tr>';
                                     echo '<td>' . $currentDate . '</td>';
                                     $prevDate = $currentDate;
@@ -149,7 +149,7 @@ function showAdminPage()
 
                     echo "<h1>View No Minimum IG Live Amelia Appointments (7-23 through 7-26)</h1>";
 
-                    $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '2021-07-23' and '2021-07-26' and books.status = 'approved' and apps.serviceId = 2 order by bookingStart;");
+                    $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '2021-07-24' and '2021-07-27' and books.status = 'approved' and apps.serviceId = 2 order by bookingStart;");
                     //$arr = $wpdb->get_results($sql);
 
                     echo '<div id="dt_example"><div id="container"><form><div id="demo">';
@@ -175,7 +175,7 @@ function showAdminPage()
                                 $currentDate = substr($v, 0, 11);
                                 $currentTime = substr($v, 12);
                                 if ($prevDate !== $currentDate) {
-                                    echo '<tr><td></td><td></td><td></td><td></td></tr>';
+                                    echo '<tr><td></td><td></td><td></td></tr>';
                                     echo '<tr>';
                                     echo '<td>' . $currentDate . '</td>';
                                     $prevDate = $currentDate;
@@ -240,7 +240,7 @@ function showModelPage()
 
             echo "<h1>10k+ IG Live Amelia Appointments (7-23 through 7-26)</h1>";
 
-            $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '2021-07-23' and '2021-07-26' and books.status = 'approved' and apps.serviceId = 3 order by bookingStart;");
+            $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '2021-07-24' and '2021-07-27' and books.status = 'approved' and apps.serviceId = 3 order by bookingStart;");
             //$arr = $wpdb->get_results($sql);
 
             echo '<div id="dt_example"><div id="container"><form><div id="demo">';
@@ -248,7 +248,7 @@ function showModelPage()
 
             echo "<td>Date</td>";
             echo "<td>Time</td>";
-            echo "<td>Service</td>";
+            
             echo "<td>Model</td>";
 
             echo '</tr></thead><tbody>';
@@ -266,7 +266,7 @@ function showModelPage()
                         $currentDate = substr($v, 0, 11);
                         $currentTime = substr($v, 12);
                         if ($prevDate !== $currentDate) {
-                            echo '<tr><td></td><td></td><td></td><td></td></tr>';
+                            echo '<tr><td></td><td></td><td></td></tr>';
                             echo '<tr>';
                             echo '<td>' . $currentDate . '</td>';
                             $prevDate = $currentDate;
@@ -285,9 +285,7 @@ function showModelPage()
                         error_log("extracting the social media tags...");
                         $v = extractSocialTags($v);
                         echo "<td>" . $v . "</td>";
-                    } else {
-                        echo "<td>" . $v . "</td>";
-                    }
+                    } 
                     //echo "<td>" . $v . "</td>";
                 }
                 echo "</tr>";
@@ -305,9 +303,9 @@ function showModelPage()
                     });
                     </script>'; //Put your HTML here
 
-            echo "<h1>No Minimum IG Live Amelia Appointments (7-23 through 7-26)</h1>";
+            echo "<h1>No Minimum IG Live Amelia Appointments (7-24 through 7-27)</h1>";
 
-            $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '2021-07-23' and '2021-07-26' and books.status = 'approved' and apps.serviceId = 2 order by bookingStart;");
+            $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '2021-07-24' and '2021-07-27' and books.status = 'approved' and apps.serviceId = 2 order by bookingStart;");
             //$arr = $wpdb->get_results($sql);
 
             echo '<div id="dt_example"><div id="container"><form><div id="demo">';
@@ -317,7 +315,7 @@ function showModelPage()
 
             echo "<td>Date</td>";
             echo "<td>Time</td>";
-            echo "<td>Service</td>";
+            
             echo "<td>Model</td>";
 
 
@@ -336,7 +334,7 @@ function showModelPage()
                         $currentDate = substr($v, 0, 11);
                         $currentTime = substr($v, 12);
                         if ($prevDate !== $currentDate) {
-                            echo '<tr><td></td><td></td><td></td><td></td></tr>';
+                            echo '<tr><td></td><td></td><td></td></tr>';
                             echo '<tr>';
                             echo '<td>' . $currentDate . '</td>';
                             $prevDate = $currentDate;
@@ -355,10 +353,8 @@ function showModelPage()
                         error_log("extracting the social media tags...");
                         $v = extractSocialTags($v);
                         echo "<td>" . $v . "</td>";
-                    } else {
-                        echo "<td>" . $v . "</td>";
-                    }
-                    //echo "<td>" . $v . "</td>";
+                    } 
+                    
                 }
                 echo "</tr>";
             }
