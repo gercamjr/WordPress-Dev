@@ -16,6 +16,9 @@ add_action('wp_footer', 'script_enqueuer_colors');
 add_action('wp_ajax_color-coded-time-slots', 'change_Colors');
 add_action('wp_ajax_nopriv_color-coded-time-slots', 'change_Colors');
 
+add_action('wp_ajax_find_popup_models', 'find_popup_models');
+add_action('wp_ajax_nopriv_find_popup_models', 'find_popup_models');
+
 /** @return never  */
 function change_Colors()
 {
@@ -56,6 +59,46 @@ function change_Colors()
 
         //error_log("came back from sql query: " . print_r($result));
         echo (json_encode($data));
+        //access the bookCount with data->bookCount
+        //access the models with data->modelTags
+        error_log("echoed the json encoded query results...");
+    }
+    die();
+}
+
+function find_popup_models()
+{
+    global $wpdb;
+    error_log("made it to the ajax request");
+    if (isset($_POST)) {
+        error_log("post is set");
+        $bookingDay = $_POST['bookingFullTime'];
+        $servName = $_POST['serviceName'];
+        error_log("bookingDay looks like this: " . $bookingDay);
+        error_log("serviceName looks like: " . $servName);
+        $result = array();
+        // hard coding the service names and id's
+        $services = array(
+            "No Minimum IG Live" => 2,
+            "10k+ IG Live" => 3,
+            "IG Live with @yourbestinsta" => 4,
+            "IG Live with @onaartist" => 5
+        );
+        $serviceId = $services[$servName];
+        error_log("the serviceId: " . $serviceId);
+        $sql = $wpdb->prepare("select books.customFields as SocialTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart = '%s  and apps.serviceId = %d and (books.status = 'approved' or books.status='pending')  order by bookingStart;", $bookingDay, $serviceId);
+        $result = $wpdb->get_results($sql);
+        if (count($result) > 0) {
+
+            foreach ($result as $social) {
+                error_log("the social tag being added to array: " . $social->SocialTags);
+                $socialResults[] = array(
+                    $social->SocialTags
+                );
+            }
+        }
+        //error_log("came back from sql query: " . print_r($result));
+        echo (json_encode($socialResults));
         //access the bookCount with data->bookCount
         //access the models with data->modelTags
         error_log("echoed the json encoded query results...");

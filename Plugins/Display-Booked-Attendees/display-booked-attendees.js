@@ -123,8 +123,6 @@ jq(document).ready(function() {
                 socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
                 jq('#ul' + currentUL).append('<br /><li class="am-value"> ' + socialTelegram + '       ' + '<a href="https://' + socialIG + '"' + ' target="_blank">' + socialIG + ' </a></li > ');
 
-                //jq('#ul' + parentUL).append('<br /><li class="am-value"> ' + socialTelegram + '       ' + socialIG + '</li>');
-
 
             });
         }
