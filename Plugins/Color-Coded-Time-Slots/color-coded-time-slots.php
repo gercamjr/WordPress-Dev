@@ -27,9 +27,10 @@ function change_Colors()
     if (isset($_POST)) {
         error_log("post is set");
         $wild = '%';
-        $bookingDay = $_POST['dateSelected'] . $wild;
+        $bookingStart = $_POST['dateStart'];
+        $bookingEnd = $_POST['dateEnd'];
         $servName = $_POST['serviceName'];
-        error_log("bookingDay looks like this: " . $bookingDay);
+        error_log("bookingDay looks like this: " . $bookingStart);
         error_log("serviceName looks like: " . $servName);
         $result = array();
         // hard coding the service names and id's
@@ -41,9 +42,10 @@ function change_Colors()
         );
         $serviceId = $services[$servName];
         error_log("the serviceId: " . $serviceId);
-        $sql = $wpdb->prepare("select apps.bookingStart, COUNT(*) as booked from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id where apps.bookingStart like %s and (books.status = 'approved' or books.status ='pending') and apps.serviceId = %d GROUP BY books.appointmentId order by apps.bookingStart;", $bookingDay, $serviceId);
+        // need to query a range of dates oh yeas, the results will include full slots which actually don't appear on the booking calendar, so need to weed those
+        $sql = $wpdb->prepare("select apps.bookingStart, COUNT(*) as booked from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id where apps.bookingStart between %s and %s and (books.status = 'approved' or books.status ='pending') and apps.serviceId = %d GROUP BY books.appointmentId order by apps.bookingStart;", $bookingStart, $bookingEnd, $serviceId);
         $result = $wpdb->get_results($sql);
-        $sql2 = $wpdb->prepare("select apps.bookingStart, books.customFields from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id where apps.bookingStart like %s and (books.status = 'approved' or books.status ='pending') and apps.serviceId = %d order by apps.bookingStart;", $bookingDay, $serviceId);
+        $sql2 = $wpdb->prepare("select apps.bookingStart, books.customFields from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id where apps.bookingStart between %s and %s and (books.status = 'approved' or books.status ='pending') and apps.serviceId = %d order by apps.bookingStart;", $bookingStart, $bookingEnd, $serviceId);
         $result2 = $wpdb->get_results($sql2);
 
         $data1 = array();
@@ -86,10 +88,11 @@ function find_popup_models()
         );
         $serviceId = $services[$servName];
         error_log("the serviceId: " . $serviceId);
-        $sql = $wpdb->prepare("select books.customFields as SocialTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart = '%s  and apps.serviceId = %d and (books.status = 'approved' or books.status='pending')  order by bookingStart;", $bookingDay, $serviceId);
+        $sql = $wpdb->prepare("select books.customFields as SocialTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart = %s  and apps.serviceId = %d and (books.status = 'approved' or books.status='pending')  order by bookingStart;", $bookingDay, $serviceId);
         $result = $wpdb->get_results($sql);
+        $socialResults = array();
         if (count($result) > 0) {
-
+            error_log("we got some results...");
             foreach ($result as $social) {
                 error_log("the social tag being added to array: " . $social->SocialTags);
                 $socialResults[] = array(
@@ -114,6 +117,8 @@ function script_enqueuer_colors($hook)
         wp_register_script("color-coded-moment", plugin_dir_url(__FILE__) . 'moment.js');
         wp_register_script("color-coded-moment-timezone", plugin_dir_url(__FILE__) . 'moment-timezone-with-data.js');
         wp_register_script("observations", plugin_dir_url(__FILE__) . 'jquery-observe.js');
+        //wp_register_script("jquery-mobile", 'http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js');
+        //wp_register_style('jquery-mobile-css', 'http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css'); 
 
         // localize the script to your domain name, so that you can reference the url to admin-ajax.php file easily
         wp_localize_script('color-coded-time-slots', 'myAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
@@ -124,5 +129,7 @@ function script_enqueuer_colors($hook)
         wp_enqueue_script("color-coded-moment");
         wp_enqueue_script("color-coded-moment-timezone");
         wp_enqueue_script("observations");
+        //wp_enqueue_script("jquery-mobile");
+        //wp_enqueue_style('jquery-mobile-css');
         
 }

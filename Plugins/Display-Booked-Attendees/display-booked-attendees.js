@@ -33,6 +33,8 @@ jq(document).ready(function() {
 
                         if (prevDate == 'Today') {
                             prevDate = moment().format('MMMM DD YYYY');
+                        } else if (prevDate == 'Tomorrow') {
+                            prevDate = moment().add(1, 'days').format('MMMM DD YYYY'); //look for tomorrow's date duh
                         }
                         console.log('the prevDate: ' + prevDate);
                         for (j = 0; j < times.length; j++) { //going through the appointment Times one by one
@@ -41,6 +43,8 @@ jq(document).ready(function() {
                             currentDate = jq(times[j]).closest('div.el-collapse').prev().text().trim(); //this gives us the current time's appointment dates
                             if (currentDate == 'Today') {
                                 currentDate = moment().format('MMMM DD YYYY');
+                            } else if (currentDate == 'Tomorrow') {
+                                currentDate = moment().add(1, 'days').format('MMMM DD YYYY'); //look for tomorrow's date duh
                             }
                             if (prevDate == currentDate) {
                                 var localt = jq(times[j]).next("h4").text() //get the next appointment's time for the current dates
