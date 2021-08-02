@@ -18,7 +18,7 @@ jq(document).ready(function() {
             //get the service name from the h2 element after the form loads of course
             //var observer = new MutationObserver(changeThemColors);
             servName = jq("#am-service-booking > div > div.am-service > div.am-service-header > div.am-service-data > div.am-service-title > h2").text().trim();
-            console.log("ready! in what service are we booking? " + servName);
+            console.log("ready! in what month and year and service? " + jq("div.c-title").text().trim() + " " + servName);
 
             prevService = servName;
             datArr = jq("div.c-title").text().split(" ");
@@ -97,9 +97,9 @@ jq(document).ready(function() {
             });
 
             //add an event listener for mouser hovers
-            jq(document).on('mouseenter mouseleave', 'label.myHoverTrigger', function(e) {
+            jq(document).off("mouseenter mouseleave").on('mouseenter mouseleave', 'label.myHoverTrigger', function(e) {
                 if (e.type == 'mouseenter') {
-                    clearPopUp();
+                    //clearPopUp();
                     e.stopPropagation();
                     //handle the mouseenter event
                     console.log('hovering over the time slot');
@@ -112,8 +112,8 @@ jq(document).ready(function() {
                     //console.log("prevDayPicked: " + prevDayPicked);
                     bookingStart = bookingStart.concat(day);
                     var left = e.pageX - 400;
-                    var top = e.pageY - 150;
-                    if (jq(window).width() < 768) {
+                    var top = e.pageY - 250;
+                    if (jq(window).width() < 780) {
                         left = e.pageX - 100;
                         top = e.pageY - 225;
                     }
@@ -160,14 +160,7 @@ jq(document).ready(function() {
                     clearPopUp();
 
                 });
-
-
-
             });
-
-
-
-
 
             // lets change the colors now
             function changeBgColors(response, target) {
@@ -240,7 +233,7 @@ jq(document).ready(function() {
 
             function createPopUp(data) {
                 console.log('in the createPopUp function');
-                if (jq(window).width() < 768) {
+                if (jq(window).width() < 780) {
                     jq('ul#my-hover').append('<div class="btn-close">&times;</div>');
                 }
                 jq.each(data, function(key, value) {

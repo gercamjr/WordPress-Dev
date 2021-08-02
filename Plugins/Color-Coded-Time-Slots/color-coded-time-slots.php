@@ -4,7 +4,7 @@
  * Plugin Name: Color Coded Time Slots
  * Plugin URI: https://github.com/gercamjr/WordPress-Dev
  * Description: This plugin color codes Amelia Booking time slots depending on number of attendees
- * Version: 1.0.1
+ * Version: 1.1.0
  * Author: Gerardo Camorlinga Jr
  * Author URI: http://github.com/gercamjr
  * License: GPL2
@@ -12,7 +12,7 @@
 
 
 // Fires after WordPress has finished loading
-add_action('wp_footer', 'script_enqueuer_colors');
+add_action('wp_enqueue_scripts', 'script_enqueuer_colors');
 add_action('wp_ajax_color-coded-time-slots', 'change_Colors');
 add_action('wp_ajax_nopriv_color-coded-time-slots', 'change_Colors');
 
@@ -34,12 +34,15 @@ function change_Colors()
         error_log("serviceName looks like: " . $servName);
         $result = array();
         // hard coding the service names and id's
-        $services = array(
-            "No Minimum IG Live" => 2,
-            "10k+ IG Live" => 3,
-            "IG Live with @yourbestinsta" => 4,
-            "IG Live with @onaartist" => 5
-        );
+        $servicesInDB = "Select name, id from wp_amelia_services;";
+        $servResult = $wpdb->get_results($servicesInDB);
+        foreach($servResult as $key => $row) {
+
+            error_log("name: " . $row->name . " id: " . $row->id);
+            // each column in your row will be accessible like this
+            $services[$row->name] = $row->id;
+            
+        }
         $serviceId = $services[$servName];
         error_log("the serviceId: " . $serviceId);
         // need to query a range of dates oh yeas, the results will include full slots which actually don't appear on the booking calendar, so need to weed those
@@ -79,13 +82,20 @@ function find_popup_models()
         error_log("bookingDay looks like this: " . $bookingDay);
         error_log("serviceName looks like: " . $servName);
         $result = array();
-        // hard coding the service names and id's
-        $services = array(
-            "No Minimum IG Live" => 2,
-            "10k+ IG Live" => 3,
-            "IG Live with @yourbestinsta" => 4,
-            "IG Live with @onaartist" => 5
-        );
+        $servicesInDB = "Select name, id from wp_amelia_services;";
+        $servResult = $wpdb->get_results($servicesInDB);
+
+        foreach($servResult as $key => $row) {
+            // each column in your row will be accessible like this
+            $services[$row->name] = $row->id;
+        }
+        /** hard coding the service names and id's
+        *$services = array(
+        *    "No Minimum IG Live" => 2,
+        *    "10k+ IG Live" => 3,
+        *    "IG Live with @yourbestinsta" => 4,
+        *    "GG Live" => 5
+        *); */
         $serviceId = $services[$servName];
         error_log("the serviceId: " . $serviceId);
         $sql = $wpdb->prepare("select books.customFields as SocialTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart = %s  and apps.serviceId = %d and (books.status = 'approved' or books.status='pending')  order by bookingStart;", $bookingDay, $serviceId);
