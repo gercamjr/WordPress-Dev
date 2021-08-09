@@ -1,14 +1,26 @@
 <?php
 
-/**
- * Plugin Name: Color Coded Time Slots
- * Plugin URI: https://github.com/gercamjr/WordPress-Dev
- * Description: This plugin color codes Amelia Booking time slots depending on number of attendees
- * Version: 1.1.0
- * Author: Gerardo Camorlinga Jr
- * Author URI: http://github.com/gercamjr
- * License: GPL2
- */
+/*
+Plugin Name: Display Appointment Attendees
+Plugin URI: https://github.com/gercamjr/WordPress-Dev/tree/main/Plugins/Color-Coded-Time-Slots
+Description: This plugin displays the attendees for a given appointment in the Amelia Appointments and Events Booking plugin.
+Version: 1.1.0
+Author: Gerardo Camorlinga Jr
+Author URI: wp.geracomdev.com
+Text Domain: Color-Coded-Time-Slots
+Domain Path:
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+
+This plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 2 of the License or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses/
+
+You can contact us at gercamjr.dev@gmail.com
+
+*/
 
 
 // Fires after WordPress has finished loading
@@ -36,12 +48,11 @@ function change_Colors()
         // hard coding the service names and id's
         $servicesInDB = "Select name, id from wp_amelia_services;";
         $servResult = $wpdb->get_results($servicesInDB);
-        foreach($servResult as $key => $row) {
+        foreach ($servResult as $key => $row) {
 
             error_log("name: " . $row->name . " id: " . $row->id);
             // each column in your row will be accessible like this
             $services[$row->name] = $row->id;
-            
         }
         $serviceId = $services[$servName];
         error_log("the serviceId: " . $serviceId);
@@ -85,17 +96,17 @@ function find_popup_models()
         $servicesInDB = "Select name, id from wp_amelia_services;";
         $servResult = $wpdb->get_results($servicesInDB);
 
-        foreach($servResult as $key => $row) {
+        foreach ($servResult as $key => $row) {
             // each column in your row will be accessible like this
             $services[$row->name] = $row->id;
         }
         /** hard coding the service names and id's
-        *$services = array(
-        *    "No Minimum IG Live" => 2,
-        *    "10k+ IG Live" => 3,
-        *    "IG Live with @yourbestinsta" => 4,
-        *    "GG Live" => 5
-        *); */
+         *$services = array(
+         *    "No Minimum IG Live" => 2,
+         *    "10k+ IG Live" => 3,
+         *    "IG Live with @yourbestinsta" => 4,
+         *    "GG Live" => 5
+         *); */
         $serviceId = $services[$servName];
         error_log("the serviceId: " . $serviceId);
         $sql = $wpdb->prepare("select books.customFields as SocialTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart = %s  and apps.serviceId = %d and (books.status = 'approved' or books.status='pending')  order by bookingStart;", $bookingDay, $serviceId);
@@ -121,25 +132,25 @@ function find_popup_models()
 
 /** @return void  */
 function script_enqueuer_colors($hook)
-{ 
-        // Register the JS file with a unique handle, file location, and an array of dependencies
-        wp_register_script("color-coded-time-slots", plugin_dir_url(__FILE__) . 'color-coded-time-slots.js', array('jquery'));
-        wp_register_script("color-coded-moment", plugin_dir_url(__FILE__) . 'moment.js');
-        wp_register_script("color-coded-moment-timezone", plugin_dir_url(__FILE__) . 'moment-timezone-with-data.js');
-        wp_register_script("observations", plugin_dir_url(__FILE__) . 'jquery-observe.js');
-        //wp_register_script("jquery-mobile", 'http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js');
-        //wp_register_style('jquery-mobile-css', 'http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css'); 
+{
+    // Register the JS file with a unique handle, file location, and an array of dependencies
+    wp_register_script("color-coded-time-slots", plugin_dir_url(__FILE__) . 'color-coded-time-slots.js', array('jquery'));
+    wp_register_script("color-coded-moment", plugin_dir_url(__FILE__) . 'moment.js');
+    wp_register_script("color-coded-moment-timezone", plugin_dir_url(__FILE__) . 'moment-timezone-with-data.js');
+    wp_register_script("observations", plugin_dir_url(__FILE__) . 'jquery-observe.js');
+    //wp_register_script("jquery-mobile", 'http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js');
+    //wp_register_style('jquery-mobile-css', 'http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css'); 
 
-        // localize the script to your domain name, so that you can reference the url to admin-ajax.php file easily
-        wp_localize_script('color-coded-time-slots', 'myAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
+    // localize the script to your domain name, so that you can reference the url to admin-ajax.php file easily
+    wp_localize_script('color-coded-time-slots', 'myAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
 
-        // enqueue jQuery library and the script you registered above
-        wp_enqueue_script('jquery');
-        wp_enqueue_script('color-coded-time-slots');
-        wp_enqueue_script("color-coded-moment");
-        wp_enqueue_script("color-coded-moment-timezone");
-        wp_enqueue_script("observations");
-        //wp_enqueue_script("jquery-mobile");
-        //wp_enqueue_style('jquery-mobile-css');
-        
+    // enqueue jQuery library and the script you registered above
+    wp_enqueue_script('jquery');
+    wp_enqueue_script('color-coded-time-slots');
+    wp_enqueue_script("color-coded-moment");
+    wp_enqueue_script("color-coded-moment-timezone");
+    wp_enqueue_script("observations");
+    //wp_enqueue_script("jquery-mobile");
+    //wp_enqueue_style('jquery-mobile-css');
+
 }
