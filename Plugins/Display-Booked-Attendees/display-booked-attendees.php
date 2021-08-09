@@ -1,14 +1,28 @@
 <?php
 
-/**
- * Plugin Name: Display Booked Attendees - Amelia
- * Plugin URI: https://github.com/gercamjr/WordPress-Dev
- * Description: This plugin will display customers who have booked an appointment at a given time.
- * Version: 1.1.0
- * Author: Gerardo Camorlinga Jr
- * Author URI: http://github.com/gercamjr
- * License: GPL2
- */
+/*
+Plugin Name: Display Attendees in Schedule
+Plugin URI: https://github.com/gercamjr/WordPress-Dev/tree/main/Plugins/Display-Booked-Attendees
+Description: This plugin lists the attendees in the user's schedule of appointments.
+Version: 1.1.0
+Author: Gerardo Camorlinga Jr
+Author URI: wp.geracomdev.com
+Text Domain: Display-Booked-Attendees
+Domain Path:
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+
+This plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 2 of the License or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses/
+
+You can contact us at gercamjr.dev@gmail.com
+
+
+
+*/
 // Fires after WordPress has finished loading, but before any headers are sent.
 //Add admin page to the menu
 
