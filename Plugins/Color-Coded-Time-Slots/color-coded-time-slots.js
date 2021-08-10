@@ -246,8 +246,9 @@ jq(document).ready(function() {
                     socialIG = socialMediaTags[4].substr(0, socialMediaTags[4].indexOf(',')); //will get just the tag by itself
                     socialIG = socialIG.replace(/\\/g, ''); //remove that backslash
                     socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
-                    console.log('the telegram tag we extracted: ' + socialTelegram);
-                    jq('ul#my-hover').append('<li>' + socialIG + '</li>');
+                    console.log('the instagram tag we extracted: ' + socialIG);
+                    socialIG = socialIG.substr(13);
+                    jq('ul#my-hover').append('<li>/' + socialIG + '</li>');
                 });
 
 
