@@ -248,7 +248,7 @@ jq(document).ready(function() {
                     socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
                     console.log('the instagram tag we extracted: ' + socialIG);
                     socialIG = socialIG.substr(13);
-                    jq('ul#my-hover').append('<li>/' + socialIG + '</li>');
+                    jq('ul#my-hover').append('<li>' + socialIG + '</li>');
                 });
 
 
