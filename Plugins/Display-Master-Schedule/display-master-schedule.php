@@ -60,7 +60,7 @@ function showModelPage()
     $endDate = date('Y-m-d', strtotime('+3 days'));
 ?>
     <div class="tab">
-        <button class="tablinks" onclick="openTab(event, '100k')" id="defaultOpen">100k+ IG Live</button>
+        <!--<button class="tablinks" onclick="openTab(event, '100k')" id="defaultOpen">100k+ IG Live</button> -->
         <button class="tablinks" onclick="openTab(event, '10k')">10k+ IG Live</button>
         <button class="tablinks" onclick="openTab(event, 'nomin')">No Min IG Live</button>
     </div>
@@ -203,7 +203,7 @@ function showModelPage()
 
     echo '</tbody></table>';
     echo '</div></form></div></div></div>';
-
+/*
     echo ('<div id="100k" class="tabcontent">');
 
     echo "<h1>100K+ IG Live Amelia Appointments</h1>";
@@ -265,7 +265,7 @@ function showModelPage()
     echo '</tbody></table>';
     echo '</div></form></div></div></div>';
 
-
+*/
 
     ?>
     <script>
