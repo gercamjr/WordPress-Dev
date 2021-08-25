@@ -237,9 +237,10 @@ function showModelPage()
                 $v = extractSocialTags($v);
                 echo "<td>" . $v . "</td>";
             }
-        }
+        
         echo "</tr>";
     }
+
 
 
     echo '</tbody></table>';
