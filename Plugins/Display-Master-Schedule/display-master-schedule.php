@@ -230,13 +230,14 @@ function showModelPage()
 
     foreach ($arr as $i => $j) {
         echo "<tr>";
-        
+        foreach ($arr[$i] as $k => $v) {
             if ($k == "SocialMediaTags") {
                 //echo "<tr>";
                 error_log("extracting the social media tags...");
                 $v = extractSocialTags($v);
                 echo "<td>" . $v . "</td>";
             }
+        }
         
         echo "</tr>";
     }
