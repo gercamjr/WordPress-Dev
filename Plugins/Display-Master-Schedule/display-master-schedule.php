@@ -4,7 +4,7 @@
 Plugin Name: Display Master Schedule
 Plugin URI: https://github.com/gercamjr/WordPress-Dev/tree/main/Plugins/Display-Master-Schedule
 Description: List all appointments and relevant attendees' information for each using a shortcode.
-Version: 1.0.0
+Version: 1.0.1
 Author: Gerardo Camorlinga Jr
 Author URI: wp.geracomdev.com
 Text Domain: Display-Master-Schedule
@@ -63,6 +63,7 @@ function showModelPage()
         <!--<button class="tablinks" onclick="openTab(event, '100k')" id="defaultOpen">100k+ IG Live</button> -->
         <button class="tablinks" onclick="openTab(event, '10k')">10k+ IG Live</button>
         <button class="tablinks" onclick="openTab(event, 'nomin')">No Min IG Live</button>
+        <button class="tablinks" onclick="openTab(event, 'grouplive')">Group Live Event</button>
     </div>
     <script>
         // Get the element with id="defaultOpen" and click on it
@@ -192,6 +193,46 @@ function showModelPage()
                 }
                 error_log("the v formatted: " . $v);
             } else if ($k == "SocialMediaTags") {
+                error_log("extracting the social media tags...");
+                $v = extractSocialTags($v);
+                echo "<td>" . $v . "</td>";
+            }
+        }
+        echo "</tr>";
+    }
+
+
+    echo '</tbody></table>';
+    echo '</div></form></div></div></div>';
+
+
+    echo ('<div id="grouplive" class="tabcontent">');
+
+
+
+
+    // event master schedule
+    echo "<h1>Group Live Event - August 25 - 4pm-5pm</h1>";
+
+    $arr = $wpdb->get_results("select model.customFields as SocialMediaTags, event.name as Event from wp_amelia_customer_bookings as model inner join wp_amelia_customer_bookings_to_events_periods as period on model.id = period.CustomerBookingId inner join wp_amelia_events_periods as eventPeriod on period.EventPeriodId = eventPeriod.id inner join wp_amelia_events as event on eventPeriod.EventId = event.id where event.id =3 ");
+
+    echo '<div id="dt_example"><div id="container"><form><div id="demo">';
+    echo '<table cellpadding="0" cellspacing="0" border="0" class="display" id="customAdminView"><thead><tr>';
+
+    //display the column names
+
+    
+    echo "<td>Model</td>";
+
+
+    echo '</tr></thead><tbody>';
+   
+
+    foreach ($arr as $i => $j) {
+        echo "<tr>";
+        
+            if ($k == "SocialMediaTags") {
+                //echo "<tr>";
                 error_log("extracting the social media tags...");
                 $v = extractSocialTags($v);
                 echo "<td>" . $v . "</td>";
