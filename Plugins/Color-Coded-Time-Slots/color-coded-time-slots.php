@@ -109,7 +109,7 @@ function find_popup_models()
          *); */
         $serviceId = $services[$servName];
         error_log("the serviceId: " . $serviceId);
-        $sql = $wpdb->prepare("select books.customFields as SocialTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart = %s  and apps.serviceId = %d and (books.status = 'approved' or books.status='pending')  order by bookingStart;", $bookingDay, $serviceId);
+        $sql = $wpdb->prepare("select books.customFields as SocialTags, books.info as Names from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart = %s  and apps.serviceId = %d and (books.status = 'approved' or books.status='pending')  order by bookingStart;", $bookingDay, $serviceId);
         $result = $wpdb->get_results($sql);
         $socialResults = array();
         if (count($result) > 0) {
@@ -117,7 +117,8 @@ function find_popup_models()
             foreach ($result as $social) {
                 error_log("the social tag being added to array: " . $social->SocialTags);
                 $socialResults[] = array(
-                    $social->SocialTags
+                    $social->SocialTags,
+                    $social->Names
                 );
             }
         }

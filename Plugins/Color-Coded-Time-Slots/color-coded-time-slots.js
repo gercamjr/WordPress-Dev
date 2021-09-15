@@ -238,17 +238,26 @@ jq(document).ready(function() {
                 }
                 jq.each(data, function(key, value) {
                     let socialMediaTags = value[0];
+                    let names = value[1];
                     console.log('got back the following social tags from db: ', socialMediaTags);
                     // console.log(socialMediaTags);
-                    socialMediaTags = socialMediaTags.replace(/\"/g, ''); // get this; "1:label:Instagram:,value:anothertest,type:text,2:label:Telegram:,value:anothertest,type:text"
+                    if (socialMediaTags != null) {
+                        socialMediaTags = socialMediaTags.replace(/\"/g, ''); // get this; "1:label:Instagram:,value:anothertest,type:text,2:label:Telegram:,value:anothertest,type:text"
+                        socialMediaTags = socialMediaTags.split(":"); // get this an array, now need to grab the instagram string which is [4] and the telegram which is [9]
+                        socialIG = socialMediaTags[4].substr(0, socialMediaTags[4].indexOf(',')); //will get just the tag by itself
+                        socialIG = socialIG.replace(/\\/g, ''); //remove that backslash
+                        socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
+                        console.log('the instagram tag we extracted: ' + socialIG);
+                        socialIG = socialIG.substr(13);
+                        jq('ul#my-hover').append('<li>' + socialIG + '</li>');
+                    } else {
+                        names = names.replace(/\"/g, '');
+                        names = names.split(":");
+                        modelName = names[1].substr(0, names[0].indexOf(',')) + " " + names[2].substr(0, names[2].indexOf(','));
+                        jq('ul#my-hover').append('<li>' + modelName + '</li>');
+                    }
                     //console.log(socialMediaTags);
-                    socialMediaTags = socialMediaTags.split(":"); // get this an array, now need to grab the instagram string which is [4] and the telegram which is [9]
-                    socialIG = socialMediaTags[4].substr(0, socialMediaTags[4].indexOf(',')); //will get just the tag by itself
-                    socialIG = socialIG.replace(/\\/g, ''); //remove that backslash
-                    socialTelegram = socialMediaTags[9].substr(0, socialMediaTags[9].indexOf(',')); //will get just the tag by itself alright!!!!!
-                    console.log('the instagram tag we extracted: ' + socialIG);
-                    socialIG = socialIG.substr(13);
-                    jq('ul#my-hover').append('<li>' + socialIG + '</li>');
+
                 });
 
 
