@@ -251,9 +251,12 @@ jq(document).ready(function() {
                         socialIG = socialIG.substr(13);
                         jq('ul#my-hover').append('<li>' + socialIG + '</li>');
                     } else {
+                        console.log("we should be extracting the user info instead...");
                         names = names.replace(/\"/g, '');
+                        console.log("this the name we got: " + names);
                         names = names.split(":");
-                        modelName = names[1].substr(0, names[0].indexOf(',')) + " " + names[2].substr(0, names[2].indexOf(','));
+                        modelName = names[1].substr(0, names[1].indexOf(',')) + " " + names[2].substr(0, names[2].indexOf(','));
+                        console.log("The model's formatted name is " + modelName);
                         jq('ul#my-hover').append('<li>' + modelName + '</li>');
                     }
                     //console.log(socialMediaTags);
