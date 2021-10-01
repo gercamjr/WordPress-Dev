@@ -64,7 +64,7 @@ function showModelPage()
         <button class="tablinks" id="defaultOpen" onclick="openTab(event, 'pinnedLive')">Pinned Live</button>
         <button class="tablinks" onclick="openTab(event, '10k')">10k+ IG Live</button>
         <button class="tablinks" onclick="openTab(event, 'nomin')">No Min IG Live</button>
-        <button class="tablinks" onclick="openTab(event, 'grouplive')">Group Live Event</button>
+        <!--<button class="tablinks" onclick="openTab(event, 'grouplive')">Group Live Event</button>-->
     </div>
     <script>
         // Get the element with id="defaultOpen" and click on it
