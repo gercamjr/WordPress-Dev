@@ -64,6 +64,7 @@ function showModelPage()
         <button class="tablinks" id="defaultOpen" onclick="openTab(event, 'pinnedLive')">Pinned Live</button>
         <button class="tablinks" onclick="openTab(event, '10k')">10k+ IG Live</button>
         <button class="tablinks" onclick="openTab(event, 'nomin')">No Min IG Live</button>
+        <button class="tablinks" onclick="openTab(event, 'gg')">Guaranteed Gains</button>
         <!--<button class="tablinks" onclick="openTab(event, 'grouplive')">Group Live Event</button>-->
     </div>
     <script>
@@ -114,17 +115,20 @@ function showModelPage()
                     echo '<tr><td></td><td></td><td></td></tr>';
                     echo '<tr>';
                     echo '<td>' . $currentDate . '</td>';
+                    echo '<td>' . $currentTime . ' NYC time</td>';
+                    $prevTime = $currentTime;
                     $prevDate = $currentDate;
                 } else {
                     echo '<tr>';
                     echo '<td></td>';
+                    echo '<td></td>';
                 }
-                if ($prevTime !== $currentTime) {
+                /*if ($prevTime !== $currentTime) {
                     echo '<td>' . $currentTime . ' NYC time</td>';
                     $prevTime = $currentTime;
                 } else {
                     echo '<td></td>';
-                }
+                } */
                 error_log("the v formatted: " . $v);
             } else if ($k == "SocialMediaTags") {
                 error_log("extracting the social media tags...");
@@ -315,7 +319,7 @@ function showModelPage()
 
     echo "<h1>Pinned Live with @YourBestInsta</h1>";
 
-    $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '" . $beginDate . "' and '" . $endDate . "' and books.status = 'approved' and apps.serviceId = 8 order by bookingStart;");
+    $arr = $wpdb->get_results("");
 
     echo '<div id="dt_example"><div id="container"><form><div id="demo">';
     echo '<table cellpadding="0" cellspacing="0" border="0" class="display" id="customAdminView"><thead><tr>';
