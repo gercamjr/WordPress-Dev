@@ -40,7 +40,7 @@ function extractSocialTags($theTag)
 
 
     $telegramTag = str_replace('"', "", $theLabel[2]); //
-    $telegramTag = substr($telegramTag, 0, -12);
+    $telegramTag = substr($telegramTag, 0, strpos($telegramTag, ','));
     $theTag = $telegramTag . ' ' . $igTag;
     error_log("the tag we extraced: " . $theTag);
     return $theTag;
@@ -55,7 +55,7 @@ function showModelPage()
     wp_register_style("tab-styles", plugin_dir_url(__FILE__) . 'tab-styles.css');
     wp_register_script('tab-function', plugin_dir_url(__FILE__) . 'tab-function.js');
     global $wpdb;
-    $default_tab = '10k';
+    
     $beginDate = date('Y-m-d');
     $endDate = date('Y-m-d', strtotime('+3 days'));
 ?>
@@ -64,7 +64,7 @@ function showModelPage()
         <button class="tablinks" id="defaultOpen" onclick="openTab(event, 'pinnedLive')">Pinned Live</button>
         <button class="tablinks" onclick="openTab(event, '10k')">10k+ IG Live</button>
         <button class="tablinks" onclick="openTab(event, 'nomin')">No Min IG Live</button>
-        <button class="tablinks" onclick="openTab(event, 'gg')">Guaranteed Gains</button>
+        <button class="tablinks" onclick="openTab(event, 'ggLive')">Guaranteed Gains</button>
         <!--<button class="tablinks" onclick="openTab(event, 'grouplive')">Group Live Event</button>-->
     </div>
     <script>
@@ -185,17 +185,20 @@ function showModelPage()
                     echo '<tr><td></td><td></td><td></td></tr>';
                     echo '<tr>';
                     echo '<td>' . $currentDate . '</td>';
+                    echo '<td>' . $currentTime . ' NYC time</td>';
+                    $prevTime = $currentTime;
                     $prevDate = $currentDate;
                 } else {
                     echo '<tr>';
                     echo '<td></td>';
+                    echo '<td></td>';
                 }
-                if ($prevTime !== $currentTime) {
+                /*if ($prevTime !== $currentTime) {
                     echo '<td>' . $currentTime . ' NYC time</td>';
                     $prevTime = $currentTime;
                 } else {
                     echo '<td></td>';
-                }
+                } */
                 error_log("the v formatted: " . $v);
             } else if ($k == "SocialMediaTags") {
                 error_log("extracting the social media tags...");
@@ -319,7 +322,7 @@ function showModelPage()
 
     echo "<h1>Pinned Live with @YourBestInsta</h1>";
 
-    $arr = $wpdb->get_results("");
+    $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '" . $beginDate . "' and '" . $endDate . "' and books.status = 'approved' and apps.serviceId = 8 order by bookingStart;");
 
     echo '<div id="dt_example"><div id="container"><form><div id="demo">';
     echo '<table cellpadding="0" cellspacing="0" border="0" class="display" id="customAdminView"><thead><tr>';
@@ -350,17 +353,82 @@ function showModelPage()
                     echo '<tr><td></td><td></td><td></td></tr>';
                     echo '<tr>';
                     echo '<td>' . $currentDate . '</td>';
+                    echo '<td>' . $currentTime . ' NYC time</td>';
+                    $prevTime = $currentTime;
                     $prevDate = $currentDate;
                 } else {
                     echo '<tr>';
                     echo '<td></td>';
+                    echo '<td></td>';
                 }
-                if ($prevTime !== $currentTime) {
+                /*if ($prevTime !== $currentTime) {
                     echo '<td>' . $currentTime . ' NYC time</td>';
                     $prevTime = $currentTime;
                 } else {
                     echo '<td></td>';
+                } */
+                error_log("the v formatted: " . $v);
+            } else if ($k == "SocialMediaTags") {
+                error_log("extracting the social media tags...");
+                $v = extractSocialTags($v);
+                echo "<td>" . $v . "</td>";
+            }
+        }
+        echo "</tr>";
+    }
+
+    echo '</tbody></table>';
+    echo '</div></form></div></div></div>';
+
+    echo ('<div id="ggLive" class="tabcontent">');
+
+    echo "<h1>GG Live</h1>";
+
+    $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '" . $beginDate . "' and '" . $endDate . "' and books.status = 'approved' and apps.serviceId = 10 order by bookingStart;");
+
+    echo '<div id="dt_example"><div id="container"><form><div id="demo">';
+    echo '<table cellpadding="0" cellspacing="0" border="0" class="display" id="customAdminView"><thead><tr>';
+
+    //display the column names
+
+    echo "<td>Date</td>";
+    echo "<td>Time</td>";
+
+    echo "<td>Model</td>";
+
+
+    echo '</tr></thead><tbody>';
+    $currentDate = '';
+    $currentTime = '';
+    $prevDate = '';
+    $prevTime = '';
+
+    foreach ($arr as $i => $j) {
+        //echo "<tr>";
+        foreach ($arr[$i] as $k => $v) {
+            if ($k == "AppointmentTime") {
+                //error_log("the v to format for nyctime: " . $v);
+                $v = formatNYCTime($v); //Jul 22,2021 12:00 am
+                $currentDate = substr($v, 0, 11);
+                $currentTime = substr($v, 12);
+                if ($prevDate !== $currentDate) {
+                    echo '<tr><td></td><td></td><td></td></tr>';
+                    echo '<tr>';
+                    echo '<td>' . $currentDate . '</td>';
+                    echo '<td>' . $currentTime . ' NYC time</td>';
+                    $prevTime = $currentTime;
+                    $prevDate = $currentDate;
+                } else {
+                    echo '<tr>';
+                    echo '<td></td>';
+                    echo '<td></td>';
                 }
+                /*if ($prevTime !== $currentTime) {
+                    echo '<td>' . $currentTime . ' NYC time</td>';
+                    $prevTime = $currentTime;
+                } else {
+                    echo '<td></td>';
+                } */
                 error_log("the v formatted: " . $v);
             } else if ($k == "SocialMediaTags") {
                 error_log("extracting the social media tags...");
