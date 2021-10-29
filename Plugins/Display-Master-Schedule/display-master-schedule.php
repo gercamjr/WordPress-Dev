@@ -58,6 +58,7 @@ function showModelPage()
     
     $beginDate = date('Y-m-d');
     $endDate = date('Y-m-d', strtotime('+3 days'));
+    $ongoingDate = date('Y-m-d', strtotime('+45 days'));
 ?>
     <div class="tab">
         <!--<button class="tablinks" onclick="openTab(event, '100k')" id="defaultOpen">100k+ IG Live</button> -->
@@ -322,7 +323,7 @@ function showModelPage()
 
     echo "<h1>Pinned Live with @YourBestInsta</h1>";
 
-    $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '" . $beginDate . "' and '" . $endDate . "' and books.status = 'approved' and apps.serviceId = 8 order by bookingStart;");
+    $arr = $wpdb->get_results("select apps.bookingStart as AppointmentTime, serv.Name as Service, books.customFields as SocialMediaTags from wp_amelia_customer_bookings as books inner join wp_amelia_appointments as apps on books.appointmentId = apps.id inner join wp_amelia_users as cust on books.customerId = cust.id inner join wp_amelia_services as serv on apps.serviceId = serv.id where apps.bookingStart between '" . $beginDate . "' and '" . $ongoingDate . "' and books.status = 'approved' and apps.serviceId = 8 order by bookingStart;");
 
     echo '<div id="dt_example"><div id="container"><form><div id="demo">';
     echo '<table cellpadding="0" cellspacing="0" border="0" class="display" id="customAdminView"><thead><tr>';
